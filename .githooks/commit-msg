@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+error_msg="Bad commit message. please follow Below of one: 
+[init] when first time initialize the project and commit
+[config] any configuration files is changed
+[doc] if you are updating any documentation files. e.g. README
+[feature] when we implement any new feature
+[fix] when we fix any specific bug, try to add github id whenever possible
+[refactor] when there is no fix nor feature, but we improve code for better performance or standards. e.g. eslint fixes.
+[wip] only when you are working on a feature/fix and it’s not completed but you have to commit in git"
+
+# Check commit messages contains standard message validation only or not
+git_msg=$1
+msg=`head -n1 $git_msg`
+# msg="[init] commiting my message"
+# pattern="^(\[?((init+\][[:space:]])))"
+pattern="^(\[?((init|config|doc|feature|fix|refactor|wip)))?\][[:space:]]+"
+
+# echo " aeros [init]" | awk -F'[][]' '{print $2}'
+if ! [[ "$msg" =~ $pattern ]]; then
+  echo "$error_msg"
+  exit 1
+fi

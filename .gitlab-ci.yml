@@ -1,0 +1,44 @@
+stages:
+  - build
+  - deploy
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+  - node_modules/
+  - dist/
+
+build_development:
+  stage: build
+  script:
+  - npm install
+  - npm run build-dev
+  only: ['development']
+  
+build_stage:
+  stage: build
+  script:
+  - npm install
+  - npm run build-stage
+  only: ['stage']
+  
+deploy_development:
+  stage: deploy
+  script:
+  - rsync -zvhr -e ssh . ubuntu@$Dev_Server_IP:/var/site/dev/aiyu-admin-apis-nodejs/
+  - ssh ubuntu@$Dev_Server_IP 'pm2 restart aiyu-admin-dev-api'
+  only: ['development']
+  
+deploy_stage:
+  stage: deploy
+  script:
+  - rsync -zvhr -e ssh . ubuntu@$Dev_Server_IP:/var/site/stage/aiyu-admin-apis-nodejs/
+  - ssh ubuntu@$Dev_Server_IP 'pm2 restart aiyu-admin-stage-api'
+  only: ['stage']
+
+deploy_production:
+  stage: deploy
+  script:
+  - rsync -zvhr -e ssh . ubuntu@$Prod_Server_IP:/var/sites/prod/aiyu-admin-apis-nodejs/
+  - ssh ubuntu@$Prod_Server_IP 'pm2 restart aiyu-admin-api'
+  only: ['master']
