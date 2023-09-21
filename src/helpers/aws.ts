@@ -72,7 +72,7 @@ export class Aws {
         const paramsAtt = {
           attributes: { /* required */
             DefaultSMSType: "Transactional",
-            DefaultSenderID: "AIYU",
+            DefaultSenderID: "e-learning",
           },
         };
       
