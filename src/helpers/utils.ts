@@ -4,9 +4,12 @@ import { parse } from "node-html-parser";
 import * as request from "request";
 import { Constants } from "../config/constants";
 import { Log } from "../helpers/logger";
+import { v4 as uuidv4 } from 'uuid';
 
 export class Utils {
   private static logger: any = Log.getLogger();
+
+  public static generateUUID = () => uuidv4(); // generate uuid
 
   public static createRandomcode = (length: number, isOTP: boolean) => {
     let code = "";
