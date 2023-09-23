@@ -4,7 +4,7 @@ import { Middleware } from "./middleware";
 import { AuthRoute } from "./v1/modules/auth/authRoute";
 import { UserRoute } from "./v1/modules/user/userRoute";
 import { DashboardRoute } from "./v1/modules/dashboard/dashboardRoute";
-
+import { CurrentAffairsRoute } from "./v1/modules/current-affairs/currentAffairsRoute";
 
 export class Routes {
   protected basePath: string;
@@ -32,6 +32,8 @@ export class Routes {
     router.use("/auth", AuthRoute);
     router.use("/user", UserRoute);
     router.use("/dashboard", DashboardRoute);
+    router.use("/current-affairs", CurrentAffairsRoute);
+    
 
     router.all("/*", (req, res) => {
       return res.status(404).json({
