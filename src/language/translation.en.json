@@ -49,5 +49,7 @@
   "SIGNATURE_UPLOAD_SUCCESS": "Signature upload successfully.",
   "IRIS_UPLOAD_SUCCESS": "Iris upload successfully.",
   "FEEDBACK_CREATE_SUCCESS": "Feedback create successfully.",
-  "FEEDBACK_UPDATE_SUCCESS": "Feedback update successfully."
+  "FEEDBACK_UPDATE_SUCCESS": "Feedback update successfully.",
+  "INAVALID_REQUEST": "Please enter valid information.",
+  "SUCCESS_CURRENT_AFFAIR_DELETE": "Current affair deleted successfully."
 }
