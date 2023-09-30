@@ -9,8 +9,14 @@ const router: Router = Router();
 const v: Validator = new Validator();
 const currentAffairsController = new CurrentAffairsController();
 
-// authentication
-router.post("/create", v.validate(CurrentAffairsModel), currentAffairsController.create); // for internal use only
+// current affairs routes
+router.post("/", v.validate(CurrentAffairsModel), currentAffairsController.create); // for internal use only
+router.put("/:id", v.validate(CurrentAffairsModel), currentAffairsController.update);
+router.put("/status/:id", currentAffairsController.updateStatus);
+router.delete("/:id", currentAffairsController.delete);
+router.patch("/:id", currentAffairsController.restore);
+router.get("/:id", currentAffairsController.getById);
+router.get("/", currentAffairsController.allCurrentAffairs); // all current affairs
 
 // Export the express.Router() instance to be used by server.ts
 export const CurrentAffairsRoute: Router = router;

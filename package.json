@@ -80,6 +80,7 @@
     "sync-dotenv": "^2.6.1",
     "trim-request": "^1.0.6",
     "ts-node-dev": "^1.0.0-pre.32",
+    "uuid": "^9.0.1",
     "winston": "^3.1.0"
   },
   "devDependencies": {
