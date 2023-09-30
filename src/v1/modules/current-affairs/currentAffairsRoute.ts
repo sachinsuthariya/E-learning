@@ -9,11 +9,12 @@ const router: Router = Router();
 const v: Validator = new Validator();
 const currentAffairsController = new CurrentAffairsController();
 
-// authentication
+// current affairs routes
 router.post("/", v.validate(CurrentAffairsModel), currentAffairsController.create); // for internal use only
 router.put("/:id", v.validate(CurrentAffairsModel), currentAffairsController.update);
 router.put("/status/:id", currentAffairsController.updateStatus);
 router.delete("/:id", currentAffairsController.delete);
+router.patch("/:id", currentAffairsController.restore);
 router.get("/:id", currentAffairsController.getById);
 router.get("/", currentAffairsController.allCurrentAffairs); // all current affairs
 

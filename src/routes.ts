@@ -5,6 +5,8 @@ import { AuthRoute } from "./v1/modules/auth/authRoute";
 import { UserRoute } from "./v1/modules/user/userRoute";
 import { DashboardRoute } from "./v1/modules/dashboard/dashboardRoute";
 import { CurrentAffairsRoute } from "./v1/modules/current-affairs/currentAffairsRoute";
+import { CourseCategoriesRoute } from "./v1/modules/course-categories/courseCategoriesRoute";
+import { CourseRoute } from "./v1/modules/course/courseRoute";
 
 export class Routes {
   protected basePath: string;
@@ -33,6 +35,8 @@ export class Routes {
     router.use("/user", UserRoute);
     router.use("/dashboard", DashboardRoute);
     router.use("/current-affairs", CurrentAffairsRoute);
+    router.use("/course-categories", CourseCategoriesRoute);
+    router.use("/course", CourseRoute);
     
 
     router.all("/*", (req, res) => {

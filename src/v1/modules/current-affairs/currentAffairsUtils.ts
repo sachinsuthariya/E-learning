@@ -17,7 +17,7 @@ export class CurrentAffairsUtils {
   public getById = async (currentAffairsId: string) =>
     await My.first(
       Tables.CURRENT_AFFAIRS,
-      ["id", "title", "content", "status", "created_at", "updated_at"],
+      ["id", "title", "content", "status", "created_at", "updated_at","deleted_at"],
       "id=?",
       [currentAffairsId]
     );
@@ -35,6 +35,7 @@ export class CurrentAffairsUtils {
       "status",
       "created_at",
       "updated_at",
+      "deleted_at"
     ]);
 
     return getAllCurrentAffairs;
@@ -45,10 +46,31 @@ export class CurrentAffairsUtils {
    * @param currentAffairsDetails
    * @returns
    */
-  public destroy = async (currentAffairsId: string) =>
-    await My.update(Tables.CURRENT_AFFAIRS, { status: "deleted" }, "id=?", [
-      currentAffairsId,
-    ]);
+  public destroy = async (currentAffairsId: string) => {
+    const currentTimestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const updatedRecord = await My.update(
+      Tables.CURRENT_AFFAIRS,
+      { status: "deleted", deleted_at: currentTimestamp},
+      "id=?",
+      [currentAffairsId]
+    );
+
+    return updatedRecord;
+
+  };
+
+  /**
+   * Current Affair Status changed to Draft and remove data of deleted_at column by ID
+   * @param currentAffairsDetails
+   * @returns
+   */
+  public restoreCurrentAffair = async (currentAffairsId: string) => 
+    await My.update(
+      Tables.CURRENT_AFFAIRS,
+      { status: "draft", deleted_at: null},
+      "id=?",
+      [currentAffairsId]
+    );
 
   /**
    * Current Affair Update Fields by ID
