@@ -36,7 +36,10 @@ export class CurrentAffairsUtils {
       "created_at",
       "updated_at",
       "deleted_at"
-    ]);
+    ],
+    "status!=?",
+    ["deleted"]
+    );
 
     return getAllCurrentAffairs;
   };

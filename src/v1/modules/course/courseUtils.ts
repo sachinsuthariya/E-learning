@@ -42,7 +42,10 @@ export class CourseUtils {
       "created_at",
       "updated_at",
       "deleted_at"
-    ]);
+    ],
+    "status!=?",
+    ["deleted"]
+    );
 
     return getAllCourses;
   };
