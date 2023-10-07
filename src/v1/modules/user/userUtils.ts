@@ -3,89 +3,74 @@ import { Tables } from "../../../config/tables";
 import { SqlUtils } from "../../../helpers/sqlUtils";
 
 export class UserUtils {
-  public sqlUtils: SqlUtils = new SqlUtils();
-
-  // Create Current Affairs
-  public create = (currentAffairsDetails: Json) =>
-    My.insert(Tables.CURRENT_AFFAIRS, currentAffairsDetails);
+  // Create User
+  public createUser = (userDetails: any) =>
+    My.insert(Tables.USER, userDetails);
 
   /**
-   * Get Current Affair by ID
-   * @param currentAffairsDetails
+   * Get User by ID
+   * @param userId
    * @returns
    */
-  public getById = async (currentAffairsId: string) =>
+  public getUserById = async (userId: string) =>
     await My.first(
-      Tables.CURRENT_AFFAIRS,
-      ["id", "title", "content", "status", "created_at", "updated_at","deleted_at"],
+      Tables.USER,
+      ["id", "firstName", "lastName", "email", "mobile", "role", "status"],
       "id=?",
-      [currentAffairsId]
+      [userId]
     );
 
   /**
-   * Get All Current Affairs
-   * @param currentAffairsDetails
+   * Get All Users
    * @returns
    */
   public getAllUsers = async () => {
-    const getAllUsers = await My.findAll(Tables.CURRENT_AFFAIRS, [
+    const getAllUsers = await My.findAll(Tables.USER, [
       "id",
-      "title",
-      "content",
-      "status",
-      "created_at",
-      "updated_at",
-      "deleted_at"
-    ],
-    "status!=?",
-    ["deleted"]
-    );
+      "firstName",
+      "lastName",
+      "email",
+      "mobile",
+      "role",
+      "status"
+    ]);
 
     return getAllUsers;
   };
 
   /**
-   * Current Affair Status changed to Deleted by ID
-   * @param currentAffairsDetails
+   * Delete User by ID
+   * @param userId
    * @returns
    */
-  public destroy = async (currentAffairsId: string) => {
-    const currentTimestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const updatedRecord = await My.update(
-      Tables.CURRENT_AFFAIRS,
-      { status: "deleted", deleted_at: currentTimestamp},
-      "id=?",
-      [currentAffairsId]
-    );
-
-    return updatedRecord;
-
+  public deleteUser = async (userId: string) => {
+    const deletedUser = await My.delete(Tables.USER, "id=?", [userId]);
+    return deletedUser;
   };
 
   /**
-   * Current Affair Status changed to Draft and remove data of deleted_at column by ID
-   * @param currentAffairsDetails
+   * Restore User by ID
+   * @param userId
    * @returns
    */
-  public restoreCurrentAffair = async (currentAffairsId: string) => 
-    await My.update(
-      Tables.CURRENT_AFFAIRS,
-      { status: "draft", deleted_at: null},
+  public restoreUser = async (userId: string) => {
+    const restoredUser = await My.update(
+      Tables.USER,
+      { status: "active" },
       "id=?",
-      [currentAffairsId]
+      [userId]
     );
+    return restoredUser;
+  };
 
   /**
-   * Current Affair Update Fields by ID
-   * @param currentAffairsId string
-   * @param currentAffairsDetails Json
+   * Update User by ID
+   * @param userId
+   * @param userDetails
    * @returns
    */
-  public updateById = async (
-    currentAffairsId: string,
-    currentAffairDetails: Json
-  ) =>
-    await My.update(Tables.CURRENT_AFFAIRS, currentAffairDetails, "id=?", [
-      currentAffairsId,
-    ]);
+  public updateUser = async (userId: string, userDetails: any) => {
+    const updatedUser = await My.update(Tables.USER, userDetails, "id=?", [userId]);
+    return updatedUser;
+  };
 }

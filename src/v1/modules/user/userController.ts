@@ -10,129 +10,150 @@ import { Utils } from "../../../helpers/utils";
 export class UserController {
     private userUtils: UserUtils = new UserUtils();
 
-    public create = async (req: any, res: Response) => {
+    public createUser = async (req: Request, res: Response) => {
         try {
-            req.body.id = Utils.generateUUID();
-            await this.userUtils.create(req.body);
-            const user = await this.userUtils.getById(req.body.id)
-            
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), user);
-            return res.status(response.code).json(response);
-        } catch (err) {
-            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
-            return res.status(response.error.code).json(response);
-        }
-    }
+            const userId = Utils.generateUUID();
+            const hashedPassword = bcryptjs.hashSync(req.body.password.toString(), Constants.PASSWORD_HASH);
 
-    public getById = async (req: any, res: Response) => {
-        try {
-            const id = req.params.id;
-            const currentAffair = await this.userUtils.getById(id);
-            
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), currentAffair);
-            return res.status(response.code).json(response);
-        } catch (err) {
-            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
-            return res.status(response.error.code).json(response);
-        }
-    }
-    public allUsers = async (req: any, res: Response) => {
-        try {
-            const getAllUsers = await this.userUtils.getAllUsers();
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), getAllUsers);
-            return res.status(response.code).json(response);
-        } catch (err) {
-            console.log(err);
-            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
-            return res.status(response.error.code).json(response);
-        }
-    }
-    public delete = async (req: any, res: Response) => {
-        try {
-            const id = req.params.id;
-            const currentAffair = await this.userUtils.destroy(id);
-
-            if (!currentAffair || !currentAffair.affectedRows) {
-                const response = ResponseBuilder.genSuccessResponse(Constants.FAIL_CODE, req.t("INAVALID_REQUEST"));
-                return res.status(response.code).json(response);                
-            }
-
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS_CURRENT_AFFAIR_DELETE"));
-            return res.status(response.code).json(response);
-        } catch (err) {
-            console.log(err);
-            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
-            return res.status(response.error.code).json(response);
-        }
-    }
-
-    public restore = async (req: any, res: Response) => {
-        try {
-            const id = req.params.id;
-            const currentAffair = await this.userUtils.restoreCurrentAffair(id);
-
-            if (!currentAffair || !currentAffair.affectedRows) {
-                const response = ResponseBuilder.genSuccessResponse(Constants.FAIL_CODE, req.t("INAVALID_REQUEST"));
-                return res.status(response.code).json(response);                
-            }
-
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS_CURRENT_AFFAIR_RESTORE"));
-            return res.status(response.code).json(response);
-        } catch (err) {
-            console.log(err);
-            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
-            return res.status(response.error.code).json(response);
-        }
-    }
-
-    public update = async (req: any, res: Response) => {
-        try {
-            const currentAffairId = req.params.id;
-            const currentAffairDetails = {
-                title: req.body.title,
-                content: req.body.content,
+            const user = {
+                id: userId,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                email: req.body.email,
+                mobile: req.body.mobile,
+                password: hashedPassword,
+                role: req.body.role,
                 status: req.body.status
-            }
+            };
 
-            const updateUser = await this.userUtils.updateById(currentAffairId, currentAffairDetails);
+            await this.userUtils.createUser(user);
+            const createdUser = await this.userUtils.getUserById(userId);
+
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, "User created successfully", createdUser);
+            return res.status(response.code).json(response);
+        } catch (err) {
+            console.error(err);
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, "Internal server error");
+            return res.status(response.error.code).json(response);
+        }
+    }
+
+    public getUserById = async (req: Request, res: Response) => {
+        try {
+            const id = req.params.id;
+            const user = await this.userUtils.getUserById(id);
             
-            if (!updateUser || !updateUser.affectedRows) {
-                const response = ResponseBuilder.genErrorResponse(Constants.NOT_FOUND_CODE, req.t("CURRENT_AFFAIR_NOT_FOUND"));
+            if (!user) {
+                const response = ResponseBuilder.genErrorResponse(Constants.NOT_FOUND_CODE, "User not found");
                 return res.status(response.error.code).json(response);
             }
 
-            const user = await this.userUtils.getById(currentAffairId);
-            
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), user);
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, "User retrieved successfully", user);
             return res.status(response.code).json(response);
         } catch (err) {
-            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+            console.error(err);
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, "Internal server error");
             return res.status(response.error.code).json(response);
         }
-    };
+    }
+
+    public getAllUsers = async (req: Request, res: Response) => {
+        try {
+            const allUsers = await this.userUtils.getAllUsers();
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, "All users retrieved successfully", allUsers);
+            return res.status(response.code).json(response);
+        } catch (err) {
+            console.error(err);
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, "Internal server error");
+            return res.status(response.error.code).json(response);
+        }
+    }
+
+    public deleteUser = async (req: Request, res: Response) => {
+        try {
+            const id = req.params.id;
+            const deletedUser = await this.userUtils.deleteUser(id);
+
+            if (!deletedUser) {
+                const response = ResponseBuilder.genErrorResponse(Constants.NOT_FOUND_CODE, "User not found");
+                return res.status(response.error.code).json(response);
+            }
+
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, "User deleted successfully");
+            return res.status(response.code).json(response);
+        } catch (err) {
+            console.error(err);
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, "Internal server error");
+            return res.status(response.error.code).json(response);
+        }
+    }
+
+    public restoreUser = async (req: Request, res: Response) => {
+        try {
+            const id = req.params.id;
+            const restoredUser = await this.userUtils.restoreUser(id);
+
+            if (!restoredUser) {
+                const response = ResponseBuilder.genErrorResponse(Constants.NOT_FOUND_CODE, "User not found");
+                return res.status(response.error.code).json(response);
+            }
+
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, "User restored successfully");
+            return res.status(response.code).json(response);
+        } catch (err) {
+            console.error(err);
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, "Internal server error");
+            return res.status(response.error.code).json(response);
+        }
+    }
+
+    public updateUser = async (req: Request, res: Response) => {
+        try {
+            const userId = req.params.id;
+            const userUpdates = {
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                mobile: req.body.mobile,
+                role: req.body.role,
+                status: req.body.status
+            };
+
+            const updatedUser = await this.userUtils.updateUser(userId, userUpdates);
+            
+            if (!updatedUser) {
+                const response = ResponseBuilder.genErrorResponse(Constants.NOT_FOUND_CODE, "User not found");
+                return res.status(response.error.code).json(response);
+            }
+
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, "User updated successfully", updatedUser);
+            return res.status(response.code).json(response);
+        } catch (err) {
+            console.error(err);
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, "Internal server error");
+            return res.status(response.error.code).json(response);
+        }
+    }
     
-    public updateStatus = async (req: any, res: Response) => {
+    public updateUserStatus = async (req: Request, res: Response) => {
         try {
-            const currentAffairId = req.params.id;
-            const currentAffairDetails = {
-                status: req.body.status
-            }
+            const userId = req.params.id;
+            const userUpdates = {
+                status : req.body.status
+            };
 
-            const updateUser = await this.userUtils.updateById(currentAffairId, currentAffairDetails);
+            const updatedUser = await this.userUtils.updateUser(userId, userUpdates);
             
-            if (!updateUser || !updateUser.affectedRows) {
-                const response = ResponseBuilder.genErrorResponse(Constants.NOT_FOUND_CODE, req.t("CURRENT_AFFAIR_NOT_FOUND"));
+            if (!updatedUser) {
+                const response = ResponseBuilder.genErrorResponse(Constants.NOT_FOUND_CODE, "User not found");
                 return res.status(response.error.code).json(response);
             }
 
-            const user = await this.userUtils.getById(currentAffairId);
-            
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), user);
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, "User status updated successfully", updatedUser);
             return res.status(response.code).json(response);
         } catch (err) {
-            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+            console.error(err);
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, "Internal server error");
             return res.status(response.error.code).json(response);
         }
     };
-
 }

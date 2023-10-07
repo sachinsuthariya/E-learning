@@ -12,7 +12,7 @@ export class ExamUtils {
   public getById = async (examId: string) =>
     await My.first(
       Tables.EXAM,
-      ["id", "title", "exam_date", "duration_minutes", "start_time", "end_time", "pass_marks", "created_at", "updated_at"],
+      ["id", "description", "title", "exam_date", "duration_minutes", "start_time", "end_time", "pass_marks", "created_at", "updated_at"],
       "id=?",
       [examId]
     );
@@ -26,7 +26,7 @@ export class ExamUtils {
   // };
   public getAllExams = async () => {
     const getAllExams = await My.findAll(Tables.EXAM, [
-      "id", "title", "duration_minutes", "start_time", "end_time", "pass_marks", "created_at", "updated_at", "exam_date"
+      "id", "description", "title", "duration_minutes", "start_time", "end_time", "pass_marks", "created_at", "updated_at", "exam_date"
     ]);
 
     const currentDate = new Date(); // Get the current date
