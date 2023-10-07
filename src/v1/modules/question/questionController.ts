@@ -4,19 +4,37 @@ import _ = require("lodash");
 import { Constants } from "../../../config/constants";
 import { Jwt } from "../../../helpers/jwt";
 import { ResponseBuilder } from "../../../helpers/responseBuilder";
-import { ExamUtils } from "./examUtils";
+import { QuestionUtils } from "./questionUtils";
 import { Utils } from "../../../helpers/utils";
 
-export class ExamController {
-    private examUtils: ExamUtils = new ExamUtils();
+export class QuestionController {
+    private questionUtils: QuestionUtils = new QuestionUtils();
 
     public create = async (req: any, res: Response) => {
         try {
-            req.body.id = Utils.generateUUID();
-            await this.examUtils.create(req.body);
-            const exam = await this.examUtils.getById(req.body.id)
+            const questionId = Utils.generateUUID();
+            const qeuestionInfo = {
+                id: questionId,
+                examId: req.body.examId,
+                question: req.body.question,
+                points: req.body.points,
+                nagativePoints: req.body.nagativePoints
+            }
+            const mcqDetails = []
+            for (const mcq of req.body.mcqOptions) {
+                mcqDetails.push({ 
+                    id: Utils.generateUUID(), 
+                    questionId: questionId, 
+                    optionText: mcq.optionText, 
+                    isCorrect: mcq.isCorrect 
+                })
+            }
+            await this.questionUtils.create(qeuestionInfo);
+            await this.questionUtils.addQuestionOptions(mcqDetails)
+
+            const questionDetails = await this.questionUtils.getById(req.body.id)
             
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), exam);
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), questionDetails);
             return res.status(response.code).json(response);
         } catch (err) {
             console.log(err);
@@ -28,11 +46,13 @@ export class ExamController {
     public getById = async (req: any, res: Response) => {
         try {
             const id = req.params.id;
-            const exam = await this.examUtils.getById(id);
+            const questionDetails = await this.questionUtils.getById(id);
+            console.log(questionDetails);
             
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), exam);
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), questionDetails);
             return res.status(response.code).json(response);
         } catch (err) {
+            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
@@ -40,7 +60,7 @@ export class ExamController {
 
     public allExams = async (req: any, res: Response) => {
         try {
-            const getAllExams = await this.examUtils.getAllExams();
+            const getAllExams = await this.questionUtils.getAllQuestion();
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), getAllExams);
             return res.status(response.code).json(response);
         } catch (err) {
@@ -52,43 +72,24 @@ export class ExamController {
 
     public update = async (req: any, res: Response) => {
         try {
-            const examId = req.params.id;
-            const examDetails = {
-                title: req.body.title,
-                exam_date: req.body.exam_date,
-                duration_minutes: req.body.duration_minutes,
-                start_time: req.body.start_time,
-                end_time: req.body.end_time,
-                pass_marks: req.body.pass_marks,
-
+            const questionId = req.params.id;
+            const questionDetails = {
+                question: req.body.title,
+                questionType: req.body.examDate,
+                points: req.body.durationMinutes,
+                nagativePoints: req.body.startTime,
             }
 
-            const updateExam = await this.examUtils.updateById(examId, examDetails);
+            const updateExam = await this.questionUtils.updateById(questionId, questionDetails);
             
             if (!updateExam || !updateExam.affectedRows) {
                 const response = ResponseBuilder.genErrorResponse(Constants.NOT_FOUND_CODE, req.t("EXAM_NOT_FOUND"));
                 return res.status(response.error.code).json(response);
             }
 
-            const exam = await this.examUtils.getById(examId);
+            const exam = await this.questionUtils.getById(questionId);
             
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), exam);
-            return res.status(response.code).json(response);
-        } catch (err) {
-            console.log(err);
-            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
-            return res.status(response.error.code).json(response);
-        }
-    }
-
-    public getExamQuestions = async (req: any, res: Response) => {
-        try {
-            const examId = req.params.id;
-            const userId = req.user && req.user.id ? String(req.user.id) : null;;
-            
-            const questions = await this.examUtils.getExamQuestions(examId, userId);
-            
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), questions);
             return res.status(response.code).json(response);
         } catch (err) {
             console.log(err);
