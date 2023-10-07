@@ -85,6 +85,12 @@ export class ExamController {
             const userId = req.user && req.user.id ? String(req.user.id) : null;
             
             const questions = await this.examUtils.getExamQuestions(examId, userId);
+            for (const question of questions) {
+                if (question.mcqOptions) {
+                    const mcqOptions = "[" + question.mcqOptions + "]";
+                    question.mcqOptions = JSON.parse(mcqOptions);
+                }
+            }
             
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), questions);
             return res.status(response.code).json(response);
