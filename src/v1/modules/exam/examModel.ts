@@ -9,6 +9,10 @@ export class ExamModel extends Model {
     public title: string;
 
     @IsNotEmpty()
+    @IsString()
+    public description: string;
+
+    @IsNotEmpty()
     // @IsDate()   /// comment reason: postman is not accepting DATE type
     public exam_date: Date;
 
@@ -32,6 +36,7 @@ export class ExamModel extends Model {
         super();
         const {
             title,
+            description,
             exam_date,
             duration_minutes,
             start_time,
@@ -39,6 +44,7 @@ export class ExamModel extends Model {
             pass_marks
         } = body;
         this.title = title;
+        this.description = description;
         this.exam_date = exam_date;
         this.duration_minutes = duration_minutes;
         this.start_time = start_time;

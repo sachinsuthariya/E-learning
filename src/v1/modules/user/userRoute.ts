@@ -5,26 +5,18 @@ import { Validator } from "../../../validate";
 import { UserController } from "./userController";
 import { UserModel } from "./userModel";
 
-
-// Assign router to the express.Router() instance
 const router: Router = Router();
 const v: Validator = new Validator();
 const userController = new UserController();
 const middleware = new Middleware();
 
-// user module
-// router.get("/user-list", middleware.isAuthenticatedAdmin, userController.getUserList);
-// router.put("/user-profile/:userId", middleware.isAuthenticatedAdmin, userController.updateUserProfile);
-// router.get("/user-profile/:userId", middleware.isAuthenticatedAdmin, userController.getUserDetail);
-// router.delete("/delete-user/:userId", middleware.isAuthenticatedAdmin, userController.deleteUser);
+// User Routes
+router.post("/", v.validate(UserModel), userController.createUser); // Create User
+router.put("/:id", userController.updateUser); // Update User
+router.put("/status/:id", userController.updateUserStatus); // Update User Status
+router.delete("/:id", userController.deleteUser); // Delete User
+router.patch("/:id", userController.restoreUser); // Restore User
+router.get("/:id", userController.getUserById); // Get User by ID
+router.get("/", userController.getAllUsers); // Get All Users
 
-router.post("/", v.validate(UserModel), userController.create); // for internal use only
-router.put("/:id", v.validate(UserModel), userController.update);
-router.put("/status/:id", userController.updateStatus);
-router.delete("/:id", userController.delete);
-router.patch("/:id", userController.restore);
-router.get("/:id", userController.getById);
-router.get("/", userController.allUsers); // all Users
-
-// Export the express.Router() instance to be used by server.ts
 export const UserRoute: Router = router;

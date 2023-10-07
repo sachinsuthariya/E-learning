@@ -53,6 +53,7 @@ export class ExamController {
             const examId = req.params.id;
             const examDetails = {
                 title: req.body.title,
+                description: req.body.description,
                 exam_date: req.body.exam_date,
                 duration_minutes: req.body.duration_minutes,
                 start_time: req.body.start_time,
