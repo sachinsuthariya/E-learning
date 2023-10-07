@@ -20,7 +20,7 @@ export class IsPasswordMatchesRequirementsConstraint implements ValidatorConstra
 export class IsEmailAlreadyExistConstraint implements ValidatorConstraintInterface {
 
     public async validate(email: string, args: ValidationArguments) {
-        const user = await My.first(Tables.ADMIN, ["id"], "email = ?", [email]);
+        const user = await My.first(Tables.USER, ["id"], "email = ?", [email]);
         return user ? false : true;
     }
 }
@@ -29,7 +29,7 @@ export class IsEmailAlreadyExistConstraint implements ValidatorConstraintInterfa
 export class IsEmailemailExistConstraint implements ValidatorConstraintInterface {
 
     public async validate(email: string) {
-        const user = await My.first(Tables.ADMIN, ["id"], "email = ?", [email]);
+        const user = await My.first(Tables.USER, ["id"], "email = ?", [email]);
         return user ? true : false;
     }
 }
