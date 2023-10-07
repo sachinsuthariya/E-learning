@@ -37,7 +37,6 @@ export class QuestionController {
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), questionDetails);
             return res.status(response.code).json(response);
         } catch (err) {
-            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
@@ -47,12 +46,10 @@ export class QuestionController {
         try {
             const id = req.params.id;
             const questionDetails = await this.questionUtils.getById(id);
-            console.log(questionDetails);
             
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), questionDetails);
             return res.status(response.code).json(response);
         } catch (err) {
-            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
@@ -64,7 +61,6 @@ export class QuestionController {
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), getAllExams);
             return res.status(response.code).json(response);
         } catch (err) {
-            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
@@ -92,7 +88,6 @@ export class QuestionController {
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), exam);
             return res.status(response.code).json(response);
         } catch (err) {
-            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
