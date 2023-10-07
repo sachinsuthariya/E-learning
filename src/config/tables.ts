@@ -3,4 +3,6 @@ export class Tables {
   public static readonly CURRENT_AFFAIRS = "current_affairs";
   public static readonly CATEGORY = "categories";
   public static readonly COURSE = "courses";
+  public static readonly EXAM = "exams";
+
 }

@@ -7,6 +7,7 @@ import { DashboardRoute } from "./v1/modules/dashboard/dashboardRoute";
 import { CurrentAffairsRoute } from "./v1/modules/current-affairs/currentAffairsRoute";
 import { CourseCategoriesRoute } from "./v1/modules/course-categories/courseCategoriesRoute";
 import { CourseRoute } from "./v1/modules/course/courseRoute";
+import { ExamRoute } from "./v1/modules/exam/examRoute";
 
 export class Routes {
   protected basePath: string;
@@ -37,6 +38,7 @@ export class Routes {
     router.use("/current-affairs", CurrentAffairsRoute);
     router.use("/course-categories", CourseCategoriesRoute);
     router.use("/course", CourseRoute);
+    router.use("/exam", ExamRoute);
     
 
     router.all("/*", (req, res) => {
