@@ -21,6 +21,7 @@ router.get("/", examController.allExams);
 
 // get exam question
 router.get("/:id/questions", middleware.isAuthenticatedAdmin, examController.getExamQuestions)
+router.post("/:id/:questionId/answer", middleware.isAuthenticatedAdmin, examController.submitAnswer)
 
 // Export the express.Router() instance to be used by server.ts
 export const ExamRoute: Router = router;

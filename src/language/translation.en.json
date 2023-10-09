@@ -51,5 +51,6 @@
   "FEEDBACK_CREATE_SUCCESS": "Feedback create successfully.",
   "FEEDBACK_UPDATE_SUCCESS": "Feedback update successfully.",
   "INAVALID_REQUEST": "Please enter valid information.",
-  "SUCCESS_CURRENT_AFFAIR_DELETE": "Current affair deleted successfully."
+  "SUCCESS_CURRENT_AFFAIR_DELETE": "Current affair deleted successfully.",
+  "SOMETHING_WENT_WRONG": "Something went wrong! Please try again."
 }

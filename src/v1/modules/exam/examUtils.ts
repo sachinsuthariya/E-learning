@@ -1,6 +1,7 @@
 import * as My from "jm-ez-mysql";
 import { Tables } from "../../../config/tables";
 import { SqlUtils } from "../../../helpers/sqlUtils";
+import { Utils } from "../../../helpers/utils";
 
 export class ExamUtils {
   public sqlUtils: SqlUtils = new SqlUtils();
@@ -36,15 +37,7 @@ export class ExamUtils {
   // };
   public getAllExams = async () => {
     const getAllExams = await My.findAll(Tables.EXAM, [
-      "id",
-      "title",
-      "duration_minutes",
-      "start_time",
-      "end_time",
-      "pass_marks",
-      "created_at",
-      "updated_at",
-      "exam_date",
+      "id", "description", "title", "duration_minutes", "start_time", "end_time", "pass_marks", "created_at", "updated_at", "exam_date"
     ]);
 
     const currentDate = new Date(); // Get the current date
@@ -106,8 +99,8 @@ export class ExamUtils {
       INNER JOIN ${Tables.MCQ_OPTION} AS mcq ON q.id = mcq.questionId
       LEFT JOIN ${Tables.STUDENT_EXAM_SUBMISSION} AS sub ON sub.questionId = q.id AND sub.userId = '${userId}'`;
 
-    const condition = `q.examId = '${examId}'`; 
-    const fields = `q.id as qId, q.question, q.questionType, q.points, q.nagativePoints, sub.mcqId as selectedMCQ,
+    const condition = `q.examId = '${examId}'`;
+    const fields = `q.id as id, q.question, q.questionType, q.points, q.nagativePoints, q.examId, sub.mcqId as selectedMCQ,
       GROUP_CONCAT(
         JSON_OBJECT(
             'id', mcq.id,
@@ -118,6 +111,40 @@ export class ExamUtils {
     const group = `q.id, q.question, q.questionType, q.points, q.nagativePoints, sub.id`;
 
     const query = `SELECT ${fields} FROM ${model} WHERE ${condition} GROUP BY ${group}`;
-    return await My.query(query)
+    return await My.query(query);
+  };
+
+  public submitAnswer = async (
+    examId: string,
+    questionId: string,
+    userId: string,
+    mcqId: string
+  ) => {
+    const where = `examId = ? AND questionId = ? AND userId = ?`;
+    const whereParams = [examId, questionId, userId];
+    const ans = await My.first(
+      Tables.STUDENT_EXAM_SUBMISSION,
+      ["id", "examId", "questionId", "mcqId", "userId"],
+      where,
+      whereParams
+    );
+    let submittedAnswer;
+
+    if (ans && ans.id) {
+      const payload = {
+        mcqId
+      }
+      submittedAnswer = await My.updateFirst(Tables.STUDENT_EXAM_SUBMISSION, payload, where, whereParams)
+    } else {
+      const payload = {
+        id: Utils.generateUUID(),
+        mcqId,
+        questionId,
+        examId,
+        userId
+      }
+      submittedAnswer = await My.insert(Tables.STUDENT_EXAM_SUBMISSION, payload)
+    }
+    return submittedAnswer
   };
 }

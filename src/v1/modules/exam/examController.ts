@@ -19,7 +19,6 @@ export class ExamController {
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), exam);
             return res.status(response.code).json(response);
         } catch (err) {
-            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
@@ -44,7 +43,6 @@ export class ExamController {
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), getAllExams);
             return res.status(response.code).json(response);
         } catch (err) {
-            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
@@ -55,6 +53,7 @@ export class ExamController {
             const examId = req.params.id;
             const examDetails = {
                 title: req.body.title,
+                description: req.body.description,
                 exam_date: req.body.exam_date,
                 duration_minutes: req.body.duration_minutes,
                 start_time: req.body.start_time,
@@ -75,7 +74,6 @@ export class ExamController {
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), exam);
             return res.status(response.code).json(response);
         } catch (err) {
-            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
@@ -84,14 +82,40 @@ export class ExamController {
     public getExamQuestions = async (req: any, res: Response) => {
         try {
             const examId = req.params.id;
-            const userId = req.user && req.user.id ? String(req.user.id) : null;;
+            const userId = req.user && req.user.id ? String(req.user.id) : null;
             
             const questions = await this.examUtils.getExamQuestions(examId, userId);
+            for (const question of questions) {
+                if (question.mcqOptions) {
+                    const mcqOptions = "[" + question.mcqOptions + "]";
+                    question.mcqOptions = JSON.parse(mcqOptions);
+                }
+            }
             
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), questions);
             return res.status(response.code).json(response);
         } catch (err) {
-            console.log(err);
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+            return res.status(response.error.code).json(response);
+        }
+    }
+
+    public submitAnswer = async (req: any, res: Response) => {
+        try {
+            const examId = req.params.id;
+            const questionId = req.params.questionId
+            const userId = req.user && req.user.id ? String(req.user.id) : null;
+            const mcqId = req.body.mcqId;
+            
+            const answer = await this.examUtils.submitAnswer(examId, questionId, userId, mcqId);
+            if (answer && answer.affectedRows) {
+                const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"));
+                return res.status(response.code).json(response);
+            } else {
+                const response = ResponseBuilder.genErrorResponse(Constants.FAIL_CODE, req.t("SOMETHING_WENT_WRONG"));
+                return res.status(response.error.code).json(response);
+            }
+        } catch (err) {
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
