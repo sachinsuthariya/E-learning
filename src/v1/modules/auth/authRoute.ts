@@ -16,6 +16,7 @@ const middleware = new Middleware();
 // authentication
 router.post("/sign-up", v.validate(AuthModel), authController.signup); // for internal use only
 router.post("/sign-in", v.validate(AuthenticationModel), authMiddleware.checkCredentials, authController.login);
+router.post("/verify-account/:token", authController.verifyAccount)
 router.post("/forgot-password", v.validate(ForgotPasswordModel), authController.forgotPassword);
 router.post("/reset-password", v.validate(ResetPasswordModel), authController.resetPassword);
 

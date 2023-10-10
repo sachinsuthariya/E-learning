@@ -1,7 +1,12 @@
 export enum UserRole {
-    USER = 'student',
-    ADMIN = 'admin',
-    MODERATOR = 'professior',
+    STUDENT = 'Student',
+    ADMIN = 'Admin',
+    PROFESSIOR = 'Professior',
+  }
+
+  export enum UserStatus{
+    ACTIVE = 'Active',
+    INACTIVE = 'Inactive',
   }
 
   export enum QuestionType {
