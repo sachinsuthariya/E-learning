@@ -5,33 +5,30 @@ import { SqlUtils } from "../../../helpers/sqlUtils";
 export class AuthUtils {
     public sqlUtils: SqlUtils = new SqlUtils();
 
-    // Create Admin
-    public createAdmin(adminDetail: Json) {
-        try {
-            return My.insert(Tables.USER, adminDetail);
-        } catch (err) {
-            throw err;
-        }
+    // Create user
+    public createUser(userDetail: Json) {
+        return My.insert(Tables.USER, userDetail);
     }
 
-    // check admin email is exists or not
-    public checkAdminEmailExists(email: string) {
-        try {
-            return My.first(Tables.USER, ["id", "firstName", "lastName", "mobile", "email", "password"],
-                "email = ?", [email]);
-        } catch (err) {
-            throw err;
-        }
+    // check user email is exists or not
+    public checkEmailExists(email: string) {
+        return My.first(Tables.USER, ["id", "firstName", "lastName", "role", "status", "mobile", "email", "emailVerified", "password"],
+            "email = ?", [email]);
     }
 
     // get user detail by id
-    public getUserById(userId) {
-        const field = ["id, firstName, lastName, email, mobile", "password"];
-        return My.first(Tables.USER, field, `id = ${userId}`);
+    public getUserById(userId: string) {
+        const field = ["id", "firstName", "lastName", "role", "status", "emailVerified", "email", "mobile", "password"];
+        return My.first(Tables.USER, field, `id = ?`, [userId]);
     }
 
-    // update Admin by Id
-    public updateAdminDetails(details: Json, id: number) {
+    public getUserByEmail(email: string){
+        const field = ["id", "firstName", "lastName", "role", "status", "emailVerified", "email", "mobile", "password"];
+        return My.first(Tables.USER, field, `email = ?`, [email]);
+    }
+
+    // update user by Id
+    public updateUserDetails(details: Json, id: number) {
         try {
             return My.updateFirst(Tables.USER, details, "id = ?", [id]);
         } catch (err) {

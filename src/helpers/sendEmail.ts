@@ -11,7 +11,6 @@ aws.config.update({
     // secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 export class SendEmail {
-
     public static sendRawMail = (
         template: string = null, replaceData: Json = null, emails: string[], subject: string, text: string = null,
         isPersonalEmail: boolean = false) => {
@@ -53,6 +52,8 @@ export class SendEmail {
                         pass: process.env.SMTP_PASSWORD,
                     },
                 };
+                console.log("transport obj =>", transportObj);
+                
             }
             const transporter = nodemailer.createTransport(transportObj);
 
@@ -64,6 +65,8 @@ export class SendEmail {
                 }
             });
         } catch (err) {
+            console.log("email err =>", err);
+            
             SendEmail.logger.error(err);
         }
     }

@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, Validate } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, Validate } from "class-validator";
 
 import { Model } from "../../../model";
 import { IsEmailAlreadyExistConstraint, IsEmailemailExistConstraint, IsPasswordMatchesRequirementsConstraint } from "./authValidators";
@@ -6,12 +6,15 @@ import { IsEmailAlreadyExistConstraint, IsEmailemailExistConstraint, IsPasswordM
 export class AuthModel extends Model {
 
     @IsNotEmpty()
+    @IsString()
     public firstName: string;
 
     @IsNotEmpty()
+    @IsString()
     public lastName: string;
 
     @IsNotEmpty()
+    @IsString()
     public mobile: string;
 
     @IsNotEmpty()
@@ -98,13 +101,7 @@ export class ForgotPasswordModel extends Model {
 
 export class ResetPasswordModel extends Model {
     @IsNotEmpty()
-    @Validate(IsEmailemailExistConstraint, {
-        message: "ERR_ACCOUNT_NOT_EXISTS",
-    })
-    public email: string;
-
-    @IsNotEmpty()
-    public otp: string;
+    public token: string;
 
     @IsNotEmpty()
     @Validate(IsPasswordMatchesRequirementsConstraint, {
@@ -115,13 +112,11 @@ export class ResetPasswordModel extends Model {
     constructor(body: any) {
         super();
         const {
-            email,
-            otp,
+            token,
             password,
         } = body;
 
-        this.email = email;
-        this.otp = otp;
+        this.token = token;
         this.password = password;
     }
 }
