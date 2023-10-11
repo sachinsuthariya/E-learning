@@ -2,6 +2,7 @@ import * as My from "jm-ez-mysql";
 import { Tables } from "../../../config/tables";
 import { SqlUtils } from "../../../helpers/sqlUtils";
 import { Utils } from "../../../helpers/utils";
+import { divide } from "lodash";
 
 export class ExamUtils {
   public sqlUtils: SqlUtils = new SqlUtils();
