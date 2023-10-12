@@ -10,7 +10,7 @@
   "ERR_EMAIL_ALREADY_USED": "Email address already exists.",
   "ERR_EMAIL_IS_NOT_VALID": "Email address is not valid.",
   "ERR_EMAIL_NOT_EXIST": "E-mail Address/Username does not exists.",
-  "ERR_ACCOUNT_NOT_ACTIVE": "Your account is not yet active, please check your email for the activation details.",
+  "ERR_ACCOUNT_NOT_ACTIVE": "Your account is inactivated please contact admin.",
   "ERR_INVALID_PASSWORD": "Please enter Correct Current Password.",
   "ERR_INVALID_SOCIAL_TYPE": "Invalid social logged in type.",
   "ERR_GENRIC_SYNTAX": "JSON request could not be parsed.",
@@ -20,10 +20,10 @@
   "ERR_EMAIL_ALREADY_EXISTS": "User with email is already exists.",
   "SOCIAL_TOKEN_EXISTS": "social token already exists",
   "MIN_MAX_LENGTH_VALIDATION_FOR_6_DIGIT": "Verification Code should be of 6 digits",
-  "USER_OTP": "Registration Verification Code",
+  "ACCOUNT_NOT_VERIFIED_ERR": "Please verify your account",
   "OTP_INCORRECT_EXPIRED": "Verification Code is incorrect or it has expired, please try again.",
   "USER_LOGIN_WITH_SOCIAL": "You have sign-up with social sign-up",
-  "EMAIL_SENT": "Your email address will be sent to OTP successfully.",
+  "FORGET_PASSWORD_EMAIL_SENT": "Please check your email address.",
   "SMS_SENT": "Your mobile number will be sent to OTP successfully.",
   "ERR_ACCOUNT_NOT_EXISTS": "account with this email is not exists",
   "PASSWORD_UPDATE_SUCCESS": "Password Updated Successfully",
@@ -31,7 +31,7 @@
   "MSG_USER_SIGN_IN": "User login successfully",
   "MSG_USER_UPDATED": "User profile updated successfully.",
   "MOBILE_ALREADY_EXIST": "Mobile number already exist.",
-  "SUCCESS_OTP_VERIFIED": "Verification Code verified successfully",
+  "SUCCESS_EMAIL_VERIFICATION": "Email verified successfully",
   "MSG_USERNAME_REQUIRED": "User name is required",
   "ACCOUNT_NOT_FOUND": "You are not registered with this {{data}}",
   "SUCCESS_LOGIN": "Login successfully",
@@ -52,5 +52,7 @@
   "FEEDBACK_UPDATE_SUCCESS": "Feedback update successfully.",
   "INAVALID_REQUEST": "Please enter valid information.",
   "SUCCESS_CURRENT_AFFAIR_DELETE": "Current affair deleted successfully.",
-  "SOMETHING_WENT_WRONG": "Something went wrong! Please try again."
+  "SOMETHING_WENT_WRONG": "Something went wrong! Please try again.",
+  "USER_WITH_EMAIL_NOT_EXIST": "User with this email does not exist." 
+
 }
