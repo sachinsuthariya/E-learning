@@ -5,12 +5,14 @@ import { Constants } from "../../../config/constants";
 import { Jwt } from "../../../helpers/jwt";
 import { ResponseBuilder } from "../../../helpers/responseBuilder";
 import { AuthUtils } from "./authUtils";
+import { Utils } from "../../../helpers/utils";
 
 export class AuthController {
     private authUtils: AuthUtils = new AuthUtils();
 
     public signup = async (req: any, res: Response) => {
         try {
+            req.body.id = Utils.generateUUID();
             // encrypt password
             req.body.password = bcryptjs.hashSync(req.body.password.toString(), Constants.PASSWORD_HASH);
 
@@ -23,6 +25,7 @@ export class AuthController {
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), userDetails);
             return res.status(response.code).json(response);
         } catch (err) {
+            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
@@ -33,6 +36,7 @@ export class AuthController {
         try {
             const data = {
                 token: Jwt.getAuthToken({ id: req.body._authentication.id }),
+                id: req.body._authentication.id,
                 firstName: req.body._authentication.firstName,
                 lastName: req.body._authentication.lastName,
                 mobile: req.body._authentication.mobile,
@@ -41,6 +45,7 @@ export class AuthController {
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS_LOGIN"), data);
             return res.status(response.code).json(response);
         } catch (err) {
+            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
