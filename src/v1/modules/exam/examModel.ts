@@ -30,7 +30,7 @@ export class ExamModel extends Model {
 
     @IsNotEmpty()
     @IsNumber()
-    public pass_marks: number;
+    public total_marks: number;
 
     constructor(body: any) {
         super();
@@ -41,7 +41,7 @@ export class ExamModel extends Model {
             duration_minutes,
             start_time,
             end_time,
-            pass_marks
+            total_marks
         } = body;
         this.title = title;
         this.description = description;
@@ -49,6 +49,6 @@ export class ExamModel extends Model {
         this.duration_minutes = duration_minutes;
         this.start_time = start_time;
         this.end_time = end_time;
-        this.pass_marks = pass_marks;
+        this.total_marks = total_marks;
     }
 }

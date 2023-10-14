@@ -21,7 +21,8 @@ export class ExamUtils {
         "duration_minutes",
         "start_time",
         "end_time",
-        "pass_marks",
+        "total_marks",
+        "user_id",
         "created_at",
         "updated_at",
       ],
@@ -38,7 +39,7 @@ export class ExamUtils {
   // };
   public getAllExams = async () => {
     const getAllExams = await My.findAll(Tables.EXAM, [
-      "id", "description", "title", "duration_minutes", "start_time", "end_time", "pass_marks", "created_at", "updated_at", "exam_date"
+      "id", "description", "title", "duration_minutes", "start_time", "end_time", "user_id","total_marks", "created_at", "updated_at", "exam_date"
     ]);
 
     const currentDate = new Date(); // Get the current date
@@ -94,7 +95,27 @@ export class ExamUtils {
     ]);
     return updatedExam;
   };
-
+  public userEnrollment = async (examId: string, userId: string) => {
+    const exam = await this.getById(examId);
+    if (!exam || !exam.user_id) {
+      // If user_id is not defined or is not an array, initialize it as an array with the current user's ID
+      const updatedExam = await My.update(Tables.EXAM, { user_id: JSON.stringify([userId]) }, "id=?", [examId]);
+     
+  } else {
+      // Parse the existing user_ids as an array
+      const existingUserIds = JSON.parse(exam.user_id);
+      // console.log(existingUserIds);
+      // Check if the current user's ID is not already in the array
+      if (!existingUserIds.includes(userId)) {
+          existingUserIds.push(userId);
+  
+          // Update the user_id column with the modified array
+          const updatedExam = await My.update(Tables.EXAM, { user_id: JSON.stringify(existingUserIds) }, "id=?", [examId]);
+        
+      }
+  }
+    return exam;
+  }
   public getExamQuestions = async (examId: string, userId: string) => {
     const model = `${Tables.QUESTION} AS q
       INNER JOIN ${Tables.MCQ_OPTION} AS mcq ON q.id = mcq.questionId
@@ -114,38 +135,171 @@ export class ExamUtils {
     const query = `SELECT ${fields} FROM ${model} WHERE ${condition} GROUP BY ${group}`;
     return await My.query(query);
   };
+  
 
   public submitAnswer = async (
     examId: string,
     questionId: string,
     userId: string,
     mcqId: string
-  ) => {
+) => {
     const where = `examId = ? AND questionId = ? AND userId = ?`;
     const whereParams = [examId, questionId, userId];
-    const ans = await My.first(
-      Tables.STUDENT_EXAM_SUBMISSION,
-      ["id", "examId", "questionId", "mcqId", "userId"],
-      where,
-      whereParams
+    const submission = await My.first(
+        Tables.STUDENT_EXAM_SUBMISSION,
+        ["id", "examId", "questionId", "mcqId", "userId"],
+        where,
+        whereParams
     );
     let submittedAnswer;
 
-    if (ans && ans.id) {
-      const payload = {
-        mcqId
-      }
-      submittedAnswer = await My.updateFirst(Tables.STUDENT_EXAM_SUBMISSION, payload, where, whereParams)
+    if (submission && submission.id) {
+        // Handle update logic for existing submission
+        const payload = {
+            mcqId
+        };
+        submittedAnswer = await My.updateFirst(Tables.STUDENT_EXAM_SUBMISSION, payload, where, whereParams);
+        await this.updateExamResultOnUpdateSubmission(examId, userId, questionId, mcqId);
     } else {
-      const payload = {
-        id: Utils.generateUUID(),
-        mcqId,
-        questionId,
-        examId,
-        userId
-      }
-      submittedAnswer = await My.insert(Tables.STUDENT_EXAM_SUBMISSION, payload)
+        // Handle insert logic for new submission
+        const payload = {
+            id: Utils.generateUUID(),
+            mcqId,
+            questionId,
+            examId,
+            userId
+          };
+          submittedAnswer = await My.insert(Tables.STUDENT_EXAM_SUBMISSION, payload);
+          await this.updateExamResultOnNewSubmission(examId, userId, questionId, mcqId);
     }
-    return submittedAnswer
-  };
+
+    // After submitting the answer, check if the MCQ is correct and adjust the score
+
+    return submittedAnswer;
+};
+
+private async updateExamResultOnNewSubmission(examId: string, userId: string, questionId: string, mcqId: string) {
+  const where = `examId = ? AND userId = ?`;
+  const whereParams = [examId, userId];
+
+  // Retrieve points for the question and check if it's correct
+  const question = await My.first(Tables.QUESTION, ["points"], `id = ?`, [questionId]);
+  const mcqOption = await My.first(Tables.MCQ_OPTION, ["isCorrect"], `id = ?`, [mcqId]);
+
+  if (!question || !question.points){ 
+
+      return null;
+  }
+  const points = question.points;
+
+  // Check if an entry exists in EXAM_RESULTS
+  const existingResult = await My.first(Tables.EXAM_RESULT, ["score"], where, whereParams);
+
+  if (existingResult) {
+      // Check if the same combination of mcqId and userId already exists in STUDENT_EXAM_SUBMISSION
+      const submissionWhere = `examId = ? AND questionId = ? AND userId = ? AND mcqId = ?`;
+      const submissionWhereParams = [examId, questionId, userId, mcqId];
+      const existingSubmission = await My.first(
+          Tables.STUDENT_EXAM_SUBMISSION,
+          ["id"],
+          submissionWhere,
+          submissionWhereParams
+      );
+
+      if (!mcqOption || mcqOption.isCorrect !== 0 || !existingSubmission || !existingSubmission.id) {
+          await My.updateFirst(
+              Tables.EXAM_RESULT,
+              { score: existingResult.score + points },
+              where,
+              whereParams
+          );
+      }
+  } else {
+      if(!mcqOption || mcqOption.isCorrect !== 1) {
+        await My.insert(Tables.EXAM_RESULT, {
+          id: Utils.generateUUID(),
+          examId,
+          userId,
+          score: 0.00,
+        });
+        return "wrong";
+      } else {
+        await My.insert(Tables.EXAM_RESULT, {
+          id: Utils.generateUUID(),
+          examId,
+          userId,
+          score: points,
+        });
+        return "new with points";
+      }
+  }
+}
+private async updateExamResultOnUpdateSubmission(examId: string, userId: string, questionId: string, mcqId: string) {
+  const where = `examId = ? AND userId = ?`;
+  const whereParams = [examId, userId];
+
+  // Retrieve points for the question and check if it's correct
+  const question = await My.first(Tables.QUESTION, ["points"], `id = ?`, [questionId]);
+  const mcqOption = await My.first(Tables.MCQ_OPTION, ["isCorrect"], `id = ?`, [mcqId]);
+
+  if (!question || !question.points){ 
+      return null;
+  }
+  const points = question.points;
+
+  // Check if an entry exists in EXAM_RESULTS
+  const existingResult = await My.first(Tables.EXAM_RESULT, ["score"], where, whereParams);
+
+  if (existingResult) {
+      // Check if the same combination of mcqId and userId already exists in STUDENT_EXAM_SUBMISSION
+      const submissionWhere = `examId = ? AND questionId = ? AND userId = ? AND mcqId = ?`;
+      const submissionWhereParams = [examId, questionId, userId, mcqId];
+      const existingSubmission = await My.first(
+          Tables.STUDENT_EXAM_SUBMISSION,
+          ["id"],
+          submissionWhere,
+          submissionWhereParams
+      );
+
+      if (existingSubmission || existingSubmission.id) {
+         if(!mcqOption || mcqOption.isCorrect !== 0) {
+          await My.updateFirst(
+              Tables.EXAM_RESULT,
+              { score: existingResult.score + points },
+              where,
+              whereParams
+          );
+        } else if(!mcqOption || mcqOption.isCorrect !== 1) {
+          await My.updateFirst(
+              Tables.EXAM_RESULT,
+              { score: existingResult.score - points },
+              where,
+              whereParams
+          );
+        }
+      }
+
+  } else {
+
+      if(!mcqOption || mcqOption.isCorrect !== 1) {
+        await My.insert(Tables.EXAM_RESULT, {
+          id: Utils.generateUUID(),
+          examId,
+          userId,
+          score: 0.00,
+        });
+        return "wrong";
+      } else {
+        await My.insert(Tables.EXAM_RESULT, {
+          id: Utils.generateUUID(),
+          examId,
+          userId,
+          score: points,
+        });
+      }
+  }
+
+}
+
+
 }
