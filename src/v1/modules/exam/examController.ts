@@ -160,4 +160,19 @@ export class ExamController {
             return res.status(response.error.code).json(response);
         }
     }
+    public getExamResult = async (req: any, res: Response) => {
+        try {
+            const examId = req.params.id;
+            const userId = req.user && req.user.id ? String(req.user.id) : "1";
+            
+            const result = await this.examUtils.getResult(examId, userId);
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), result);
+            console.log(response);
+            return res.status(response.code).json(response);
+        } catch (err) {
+            console.log(err);
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+            return res.status(response.error.code).json(response);
+        }
+    }
 }

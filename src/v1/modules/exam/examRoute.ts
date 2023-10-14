@@ -23,5 +23,8 @@ router.get("/", examController.allExams);
 router.get("/:id/questions", examController.getExamQuestions)
 router.post("/:id/:questionId/answer", examController.submitAnswer)
 
+//get exam result 
+router.get("/:id/:userId/result", examController.getExamResult)
+
 // Export the express.Router() instance to be used by server.ts
 export const ExamRoute: Router = router;

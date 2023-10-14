@@ -118,11 +118,12 @@ export class ExamUtils {
   }
   public getExamQuestions = async (examId: string, userId: string) => {
     const model = `${Tables.QUESTION} AS q
+      INNER JOIN ${Tables.EXAM} AS e ON e.id = q.examId
       INNER JOIN ${Tables.MCQ_OPTION} AS mcq ON q.id = mcq.questionId
       LEFT JOIN ${Tables.STUDENT_EXAM_SUBMISSION} AS sub ON sub.questionId = q.id AND sub.userId = '${userId}'`;
 
     const condition = `q.examId = '${examId}'`;
-    const fields = `q.id as id, q.question, q.questionType, q.points, q.nagativePoints, q.examId, sub.mcqId as selectedMCQ,
+    const fields = `q.id as id, q.question, q.questionType, q.points, q.nagativePoints, q.examId, TIME(e.start_time) AS startTime, TIME(e.end_time) AS endTime, e.duration_minutes AS duration, sub.mcqId as selectedMCQ,
       GROUP_CONCAT(
         JSON_OBJECT(
             'id', mcq.id,
@@ -159,7 +160,7 @@ export class ExamUtils {
             mcqId
         };
         submittedAnswer = await My.updateFirst(Tables.STUDENT_EXAM_SUBMISSION, payload, where, whereParams);
-        await this.updateExamResultOnUpdateSubmission(examId, userId, questionId, mcqId);
+        await this.updateExamResultOnUpdateSubmission(examId, userId, questionId, mcqId,submission);
     } else {
         // Handle insert logic for new submission
         const payload = {
@@ -234,13 +235,14 @@ private async updateExamResultOnNewSubmission(examId: string, userId: string, qu
       }
   }
 }
-private async updateExamResultOnUpdateSubmission(examId: string, userId: string, questionId: string, mcqId: string) {
+private async updateExamResultOnUpdateSubmission(examId: string, userId: string, questionId: string, mcqId: string, submission) {
   const where = `examId = ? AND userId = ?`;
   const whereParams = [examId, userId];
 
   // Retrieve points for the question and check if it's correct
   const question = await My.first(Tables.QUESTION, ["points"], `id = ?`, [questionId]);
   const mcqOption = await My.first(Tables.MCQ_OPTION, ["isCorrect"], `id = ?`, [mcqId]);
+  const submittedMcqOption = await My.first(Tables.MCQ_OPTION, ["isCorrect"], `id = ?`, [submission.mcqId]);
 
   if (!question || !question.points){ 
       return null;
@@ -262,20 +264,27 @@ private async updateExamResultOnUpdateSubmission(examId: string, userId: string,
       );
 
       if (existingSubmission || existingSubmission.id) {
-         if(!mcqOption || mcqOption.isCorrect !== 0) {
-          await My.updateFirst(
+         if(!mcqOption || mcqOption.isCorrect !== 0 && submission.mcqId !== mcqId) {
+          if(!submittedMcqOption || submittedMcqOption.isCorrect !== 1)
+          {
+            await My.updateFirst(
               Tables.EXAM_RESULT,
               { score: existingResult.score + points },
               where,
               whereParams
-          );
-        } else if(!mcqOption || mcqOption.isCorrect !== 1) {
-          await My.updateFirst(
+              );
+          }
+        } else if(!mcqOption || mcqOption.isCorrect !== 1 && submission.mcqId !== mcqId) {
+          if(!submittedMcqOption || submittedMcqOption.isCorrect !== 0)
+          {
+
+            await My.updateFirst(
               Tables.EXAM_RESULT,
               { score: existingResult.score - points },
               where,
               whereParams
-          );
+              );
+          }
         }
       }
 
@@ -300,6 +309,12 @@ private async updateExamResultOnUpdateSubmission(examId: string, userId: string,
   }
 
 }
-
+public getResult = async (examId: string,userId: string) =>
+    await My.first(
+      Tables.EXAM_RESULT,
+    ["id", "score"],
+    "examId=? AND userId=?",
+    [examId, userId]
+);
 
 }
