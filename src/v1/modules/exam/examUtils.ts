@@ -37,22 +37,22 @@ export class ExamUtils {
 
   //   return getAllExams;
   // };
-  public getAllExams = async () => {
+  public getAllExams = async (loginUserId: string) => {
     const getAllExams = await My.findAll(Tables.EXAM, [
-      "id", "description", "title", "duration_minutes", "start_time", "end_time", "user_id","total_marks", "created_at", "updated_at", "exam_date"
+      "id", "description", "title", "duration_minutes", "start_time", "end_time", "user_id", "total_marks", "created_at", "updated_at", "exam_date"
     ]);
-
+  
     const currentDate = new Date(); // Get the current date
-
+  
     const pastExams = [];
     const presentExams = [];
     const futureExams = [];
     const noDateAvailableExams = [];
-
+  
     getAllExams.forEach((exam) => {
       const examDate = new Date(exam.exam_date);
       const startTime = new Date(exam.start_time);
-
+  
       // Extract only the date portion for comparison
       const currentDateOnly = new Date(
         currentDate.getFullYear(),
@@ -69,7 +69,7 @@ export class ExamUtils {
         startTime.getMonth(),
         startTime.getDate()
       );
-
+  
       if (examDate.toString() === "Invalid Date") {
         noDateAvailableExams.push(exam);
       } else if (startTimeOnly < currentDateOnly) {
@@ -79,8 +79,24 @@ export class ExamUtils {
       } else {
         presentExams.push(exam);
       }
-    });
+    // Check if the loginUserId is enrolled in the exam
+    try {
+      const userIdArray = JSON.parse(exam.user_id);
+      console.log("userIdArray =>", userIdArray);
+      console.log("loginUserId =>", loginUserId, "cond =", userIdArray.includes(loginUserId));
+      
+      
+      exam.isEnrolledUser = userIdArray.includes(loginUserId) ? true : false;
 
+      console.log("exam.isEnrolledUser ==>", exam.isEnrolledUser);
+      
+    } catch (error) {
+      exam.isEnrolledUser = false;
+    }
+    // Remove the "user_id" field from the exam response
+    delete exam.user_id;
+    });
+  
     return {
       pastExams,
       presentExams,
@@ -88,6 +104,7 @@ export class ExamUtils {
       noDateAvailableExams,
     };
   };
+  
 
   public updateById = async (examId: string, examDetails: Json) => {
     const updatedExam = await My.update(Tables.EXAM, examDetails, "id=?", [
@@ -123,7 +140,7 @@ export class ExamUtils {
       LEFT JOIN ${Tables.STUDENT_EXAM_SUBMISSION} AS sub ON sub.questionId = q.id AND sub.userId = '${userId}'`;
 
     const condition = `q.examId = '${examId}'`;
-    const fields = `q.id as id, q.question, q.questionType, q.points, q.nagativePoints, q.examId, TIME(e.start_time) AS startTime, TIME(e.end_time) AS endTime, e.duration_minutes AS duration, sub.mcqId as selectedMCQ,
+    const fields = `q.id as id, q.question, q.questionType, q.points, q.nagativePoints, q.examId, e.duration_minutes AS duration, sub.mcqId as selectedMCQ,
       GROUP_CONCAT(
         JSON_OBJECT(
             'id', mcq.id,
@@ -316,5 +333,35 @@ public getResult = async (examId: string,userId: string) =>
     "examId=? AND userId=?",
     [examId, userId]
 );
+public userEnrolledExams = async (loginUserId: string) => {
+  const getAllExams = await My.findAll(Tables.EXAM, [
+    "id", "description", "title", "duration_minutes", "start_time", "end_time", "user_id", "total_marks", "created_at", "updated_at", "exam_date"
+  ]);
+
+  // return getAllExams;
+  const userExams = [];
+
+  getAllExams.forEach((exam) => {
+
+    try {
+      const userIdArray = JSON.parse(exam.user_id);
+      if (Array.isArray(userIdArray)) {
+        if (userIdArray.includes(loginUserId)) {
+          // Include the exam in the result only if loginUserId is enrolled
+          userExams.push(exam);
+        }
+      } else {
+        console.log(`Invalid user_id format for exam ${exam.id}`);
+      }
+    } catch (error) {
+      // Handle JSON parsing error, e.g., if the "user_id" is not a valid JSON array
+      console.error(`Error parsing user_id for exam ${exam.id}:`, error);
+    }
+  });
+
+  return userExams;
+};
+
+
 
 }

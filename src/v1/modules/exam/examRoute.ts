@@ -16,15 +16,20 @@ const middleware = new Middleware();
 router.post("/", v.validate(ExamModel), examController.create);
 router.put("/:id", v.validate(ExamModel), examController.update);
 // router.delete("/:id", examController.delete);
-router.get("/:id", examController.getById);
+router.get("/list", middleware.isAuthenticatedStudent, examController.allExams);
 router.get("/", examController.allExams);
 
+// enrollment user for exam routes
+router.put("/:id/enroll-exam", middleware.isAuthenticatedStudent, examController.enrollExamUser);
+router.get("/enrolled", middleware.isAuthenticatedStudent, examController.enrolledExams);
+
 // get exam question
-router.get("/:id/questions", examController.getExamQuestions)
-router.post("/:id/:questionId/answer", examController.submitAnswer)
+router.get("/:id/questions", middleware.isAuthenticatedStudent, examController.getExamQuestions)
+router.post("/:id/:questionId/answer", middleware.isAuthenticatedStudent, examController.submitAnswer)
 
 //get exam result 
-router.get("/:id/:userId/result", examController.getExamResult)
+router.get("/:id/:userId/result", middleware.isAuthenticatedStudent, examController.getExamResult)
+router.get("/:id", examController.getById);
 
 // Export the express.Router() instance to be used by server.ts
 export const ExamRoute: Router = router;

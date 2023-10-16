@@ -47,8 +47,8 @@ export class QuestionUtils {
     };
   };
 
-  public getAllQuestion = async () => {
-    const getAllExams = await My.findAll(Tables.QUESTION, [
+  public getAllQuestions = async () => {
+    const questionsWithExamNames = await My.findAll(Tables.QUESTION, [
       "id",
       "examId",
       "question",
@@ -56,52 +56,14 @@ export class QuestionUtils {
       "points",
       "nagativePoints",
     ]);
-
-    const currentDate = new Date(); // Get the current date
-
-    const pastExams = [];
-    const presentExams = [];
-    const futureExams = [];
-    const noDateAvailableExams = [];
-
-    getAllExams.forEach((exam) => {
-      const examDate = new Date(exam.exam_date);
-      const startTime = new Date(exam.start_time);
-
-      // Extract only the date portion for comparison
-      const currentDateOnly = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        currentDate.getDate()
-      );
-      const examDateOnly = new Date(
-        examDate.getFullYear(),
-        examDate.getMonth(),
-        examDate.getDate()
-      );
-      const startTimeOnly = new Date(
-        startTime.getFullYear(),
-        startTime.getMonth(),
-        startTime.getDate()
-      );
-
-      if (examDate.toString() === "Invalid Date") {
-        noDateAvailableExams.push(exam);
-      } else if (startTimeOnly < currentDateOnly) {
-        pastExams.push(exam);
-      } else if (startTimeOnly > currentDateOnly) {
-        futureExams.push(exam);
-      } else {
-        presentExams.push(exam);
-      }
-    });
-
-    return {
-      pastExams,
-      presentExams,
-      futureExams,
-      noDateAvailableExams,
-    };
+  
+    // Now, let's fetch the related exam names for each question
+    for (const question of questionsWithExamNames) {
+      const exam = await My.first(Tables.EXAM, ["title"], "id = ?", [question.examId]);
+      question.examName = exam ? exam.title : null;
+    }
+  
+    return questionsWithExamNames;
   };
 
   /**

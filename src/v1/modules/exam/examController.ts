@@ -38,11 +38,26 @@ export class ExamController {
     }
 
     public allExams = async (req: any, res: Response) => {
-        try {
-            const getAllExams = await this.examUtils.getAllExams();
+        try {            
+            const loginUserId = req.user && req.user.id ? req.user.id : null;
+
+            const getAllExams = await this.examUtils.getAllExams(loginUserId);
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), getAllExams);
             return res.status(response.code).json(response);
         } catch (err) {
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+            return res.status(response.error.code).json(response);
+        }
+    }
+    public enrolledExams = async (req: any, res: Response) => {
+        try {
+            const loginUserId = req.user && req.user.id ? req.user.id : null;
+            // return loginUserId;
+            const enrolledExams = await this.examUtils.userEnrolledExams(loginUserId);
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), enrolledExams);
+            return res.status(response.code).json(response);
+        } catch (err) {
+            console.log(err)
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
@@ -103,8 +118,8 @@ export class ExamController {
     public enrollExamUser = async (req: any, res: Response) => {
         try {
             const examId = req.params.id;
-            const userId = req.user && req.user.id ? String(req.user.id) : "1";
-    
+            const userId = req.user && req.user.id ? req.user.id : null;
+            console.log('user Id :', req.user);
             const enroll = await this.examUtils.userEnrollment(examId, userId);
             
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), enroll);
@@ -143,9 +158,9 @@ export class ExamController {
         try {
             const examId = req.params.id;
             const questionId = req.params.questionId
-            const userId = req.user && req.user.id ? String(req.user.id) : "1";
+            const userId = req.user && req.user.id ? req.user.id : null;
             const mcqId = req.body.mcqId;
-            
+            // console.log(userId);
             const answer = await this.examUtils.submitAnswer(examId, questionId, userId, mcqId);
             if (answer && answer.affectedRows) {
                 const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"),answer);
@@ -163,7 +178,7 @@ export class ExamController {
     public getExamResult = async (req: any, res: Response) => {
         try {
             const examId = req.params.id;
-            const userId = req.user && req.user.id ? String(req.user.id) : "1";
+            const userId = req.user && req.user.id ? req.user.id : null;
             
             const result = await this.examUtils.getResult(examId, userId);
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), result);

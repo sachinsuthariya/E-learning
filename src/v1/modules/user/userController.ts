@@ -23,6 +23,10 @@ export class UserController {
                 mobile: req.body.mobile,
                 password: hashedPassword,
                 role: req.body.role,
+                dob: req.body.dob,
+                city: req.body.city,
+                upscAttempts: req.body.upscAttempts,
+                upscTargetYear: req.body.upscTargetYear,
                 status: req.body.status
             };
 
@@ -111,8 +115,13 @@ export class UserController {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 mobile: req.body.mobile,
-                role: req.body.role,
-                status: req.body.status
+                email: req.body.email,
+                // role: req.body.role,
+                dob: req.body.dob,
+                city: req.body.city,
+                upscAttempts: req.body.upscAttempts,
+                upscTargetYear: req.body.upscTargetYear,
+                // status: req.body.status
             };
 
             const updatedUser = await this.userUtils.updateUser(userId, userUpdates);

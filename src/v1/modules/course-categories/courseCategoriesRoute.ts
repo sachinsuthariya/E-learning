@@ -3,11 +3,13 @@ import { Router } from "express";
 import { Validator } from "../../../validate";
 import { CourseCategoriesModel } from "./courseCategoriesModel";
 import { CourseCategoriesController } from "./courseCategoriesController";
+import { Middleware } from "../../../middleware";
 
 // Assign router to the express.Router() instance
 const router: Router = Router();
 const v: Validator = new Validator();
 const courseCategoriesController = new CourseCategoriesController();
+const middleware = new Middleware();
 
 // categories routes
 router.post("/", v.validate(CourseCategoriesModel), courseCategoriesController.create); // for internal use only

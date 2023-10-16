@@ -15,7 +15,7 @@ export class UserUtils {
   public getUserById = async (userId: string) =>
     await My.first(
       Tables.USER,
-      ["id", "firstName", "lastName", "email", "mobile", "role", "status"],
+      ["id", "firstName", "lastName", "email", "mobile", "role", "dob", "city", "upscAttempts", "upscTargetYear", "status"],
       "id=?",
       [userId]
     );
@@ -32,6 +32,10 @@ export class UserUtils {
       "email",
       "mobile",
       "role",
+      "dob",
+      "city",
+      "upscAttempts",
+      "upscTargetYear",
       "status"
     ]);
 
@@ -69,8 +73,8 @@ export class UserUtils {
    * @param userDetails
    * @returns
    */
-  public updateUser = async (userId: string, userDetails: any) => {
-    const updatedUser = await My.update(Tables.USER, userDetails, "id=?", [userId]);
+  public updateUser = async (userId: string, userUpdates: any) => {
+    const updatedUser = await My.update(Tables.USER, userUpdates, "id=?", [userId]);
     return updatedUser;
   };
 }

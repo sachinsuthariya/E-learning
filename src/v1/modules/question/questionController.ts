@@ -56,10 +56,10 @@ export class QuestionController {
         }
     }
 
-    public allExams = async (req: any, res: Response) => {
+    public allQuestions = async (req: any, res: Response) => {
         try {
-            const getAllExams = await this.questionUtils.getAllQuestion();
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), getAllExams);
+            const getAllQuestions = await this.questionUtils.getAllQuestions();
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), getAllQuestions);
             return res.status(response.code).json(response);
         } catch (err) {
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));

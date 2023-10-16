@@ -3,11 +3,13 @@ import { Router } from "express";
 import { Validator } from "../../../validate";
 import { CurrentAffairsModel } from "./currentAffairsModel";
 import { CurrentAffairsController } from "./currentAffairsController";
+import { Middleware } from "../../../middleware";
 
 // Assign router to the express.Router() instance
 const router: Router = Router();
 const v: Validator = new Validator();
 const currentAffairsController = new CurrentAffairsController();
+const middleware = new Middleware();
 
 // current affairs routes
 router.post("/", v.validate(CurrentAffairsModel), currentAffairsController.create); // for internal use only
