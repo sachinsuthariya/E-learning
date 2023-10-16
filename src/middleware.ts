@@ -62,6 +62,7 @@ export class Middleware {
   public isAuthenticatedStudent = async (req: any, res: Response, next: () => void) => {
     try {
       const token = req.headers["x-auth-token"] || req.headers["authentication"];
+      console.log(req.headers);
       if (!token) {
         const response = ResponseBuilder.genErrorResponse(Constants.UNAUTHORIZED_CODE, req.t("UNAUTHORIZED"));
         return res.status(response.error.code).json(response);
