@@ -23,7 +23,7 @@
   "ACCOUNT_NOT_VERIFIED_ERR": "Please verify your account",
   "OTP_INCORRECT_EXPIRED": "Verification Code is incorrect or it has expired, please try again.",
   "USER_LOGIN_WITH_SOCIAL": "You have sign-up with social sign-up",
-  "FORGET_PASSWORD_EMAIL_SENT": "Please check your email address.",
+  "FORGET_PASSWORD_EMAIL_SENT": "Please check your email.",
   "SMS_SENT": "Your mobile number will be sent to OTP successfully.",
   "ERR_ACCOUNT_NOT_EXISTS": "account with this email is not exists",
   "PASSWORD_UPDATE_SUCCESS": "Password Updated Successfully",
@@ -54,6 +54,6 @@
   "INAVALID_REQUEST": "Please enter valid information.",
   "SUCCESS_CURRENT_AFFAIR_DELETE": "Current affair deleted successfully.",
   "SOMETHING_WENT_WRONG": "Something went wrong! Please try again.",
-  "USER_WITH_EMAIL_NOT_EXIST": "User with this email does not exist." 
-
+  "USER_WITH_EMAIL_NOT_EXIST": "User with this email does not exist.",
+  "ERR_THUMBNAIL_FAILED": "Thumbnail creation failed" 
 }

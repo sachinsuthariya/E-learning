@@ -39,15 +39,18 @@ export class App {
     });
     l10n.setTranslationsFile("en", `src/language/translation.en.json`);
     this.app.use(l10n.enableL10NExpress);
-    this.app.use(busboy({ immediate: true }));
+    // this.app.use(busboy({ immediate: true }));
     this.app.use(fileUpload({
       parseNested: true,
+      createParentPath: true
     }));
     this.app.use(morgan("dev"));
-    this.app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+    this.app.use(express.urlencoded({ limit: '50mb', extended: true }));
     // this.app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
-    this.app.use(bodyParser.json({ limit: '50mb' }), (error, req, res, next) => {
+    this.app.use(express.json({ limit: '50mb' }), (error, req, res, next) => {
       if (error) {
+        console.log("err =>", error);
+        
         return res.status(400).json({ error: req.t("ERR_GENRIC_SYNTAX") });
       }
       next();

@@ -13,3 +13,10 @@ export enum UserRole {
     MCQ = 'MCQ',
     OPNE = 'OPEN',
   }
+
+  export enum FileTypes{
+    BOOKS = "books",
+    CURRENT_AFFAIRS = "current-affairs",
+    COURSES = "courses",
+    EXAMS = "exams"
+  }
