@@ -31,7 +31,10 @@ __decorate([
 ], AuthModel.prototype, "lastName", void 0);
 __decorate([
     class_validator_1.IsNotEmpty(),
-    class_validator_1.IsString()
+    class_validator_1.IsString(),
+    class_validator_1.Validate(authValidators_1.IsMobileAlreadyExistConstraint, {
+        message: "ERR_MOBILE_ALREADY_EXISTS",
+    })
 ], AuthModel.prototype, "mobile", void 0);
 __decorate([
     class_validator_1.IsNotEmpty(),

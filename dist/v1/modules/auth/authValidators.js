@@ -15,7 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IsEmailemailExistConstraint = exports.IsEmailAlreadyExistConstraint = exports.IsPasswordMatchesRequirementsConstraint = void 0;
+exports.IsMobileAlreadyExistConstraint = exports.IsEmailAlreadyExistConstraint = exports.IsPasswordMatchesRequirementsConstraint = void 0;
 const class_validator_1 = require("class-validator");
 const My = require("jm-ez-mysql");
 const tables_1 = require("../../../config/tables");
@@ -47,16 +47,16 @@ IsEmailAlreadyExistConstraint = __decorate([
     class_validator_1.ValidatorConstraint({ async: true })
 ], IsEmailAlreadyExistConstraint);
 exports.IsEmailAlreadyExistConstraint = IsEmailAlreadyExistConstraint;
-let IsEmailemailExistConstraint = class IsEmailemailExistConstraint {
-    validate(email) {
+let IsMobileAlreadyExistConstraint = class IsMobileAlreadyExistConstraint {
+    validate(mobile) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield My.first(tables_1.Tables.USER, ["id"], "email = ?", [email]);
-            return user ? true : false;
+            const user = yield My.first(tables_1.Tables.USER, ['id'], "mobile = ?", [mobile]);
+            return user ? false : true;
         });
     }
 };
-IsEmailemailExistConstraint = __decorate([
+IsMobileAlreadyExistConstraint = __decorate([
     class_validator_1.ValidatorConstraint({ async: true })
-], IsEmailemailExistConstraint);
-exports.IsEmailemailExistConstraint = IsEmailemailExistConstraint;
+], IsMobileAlreadyExistConstraint);
+exports.IsMobileAlreadyExistConstraint = IsMobileAlreadyExistConstraint;
 //# sourceMappingURL=authValidators.js.map

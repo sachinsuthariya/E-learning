@@ -39,6 +39,7 @@
   "SUCCESS_CHANGE_PASSWORD": "Password changed successfully.",
   "MOBILE_NOT_FOUND": "You are not registered this mobile number",
   "ERR_USERNAME_ALREADY_EXISTS": "User name is already exists.",
+  "ERR_MOBILE_ALREADY_EXISTS": "Mobile number is already exist.",
   "USERNAME_ALREADY_EXIST": "User name already exist.",
   "NO_DATA_FOUND": "No data found",
   "SUCCESS_UPDATE_USER_STATUS": "Status updated successfully.",

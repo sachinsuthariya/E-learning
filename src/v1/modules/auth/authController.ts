@@ -24,19 +24,19 @@ public signup = async (req: any, res: Response) => {
     );
 
     // Process and save the uploaded image if it exists
-    if (req.body.image) {
-      const matches = req.body.image.match(/^data:image\/([A-Za-z]+);base64,(.+)$/);
-      if (matches.length === 3) {
-        const extension = matches[1]; // Get the file extension (e.g., "png", "jpg", "jpeg", etc.)
-        const base64Data = matches[2];
-        const imageBuffer = Buffer.from(base64Data, 'base64');
-        const imagePath = `uploads/${req.body.id}.${extension}`;
-        fs.writeFileSync(imagePath, imageBuffer);
-        req.body.imagePath = imagePath;
-      } else {
-        return res.status(400).send('Invalid image data format');
-      }
-    }
+    // if (req.body.image) {
+    //   const matches = req.body.image.match(/^data:image\/([A-Za-z]+);base64,(.+)$/);
+    //   if (matches.length === 3) {
+    //     const extension = matches[1]; // Get the file extension (e.g., "png", "jpg", "jpeg", etc.)
+    //     const base64Data = matches[2];
+    //     const imageBuffer = Buffer.from(base64Data, 'base64');
+    //     const imagePath = `uploads/${req.body.id}.${extension}`;
+    //     fs.writeFileSync(imagePath, imageBuffer);
+    //     req.body.imagePath = imagePath;
+    //   } else {
+    //     return res.status(400).send('Invalid image data format');
+    //   }
+    // }
 
     const result = await this.authUtils.createUser(req.body);
     // JWT token
@@ -83,6 +83,8 @@ public signup = async (req: any, res: Response) => {
     );
     return res.status(response.code).json(response);
   } catch (err) {
+    console.log('err =>', err);
+    
     const response = ResponseBuilder.genErrorResponse(
       Constants.INTERNAL_SERVER_ERROR_CODE,
       req.t("ERR_INTERNAL_SERVER")

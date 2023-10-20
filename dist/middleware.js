@@ -57,7 +57,7 @@ class Middleware {
                     return res.status(response.error.code).json(response);
                 }
                 req.user = yield this.authUtils.getUserById(userData.id);
-                if (req.user.id == userData.id && req.user.role == enums_1.UserRole.PROFESSIOR && req.user.email == userData.email) {
+                if (req.user.id == userData.id && req.user.role == enums_1.UserRole.PROFESSIOR && req.user.email == userData.email && req.user.mobile && userData.mobile) {
                     next();
                 }
                 else {
@@ -84,7 +84,7 @@ class Middleware {
                     return res.status(response.error.code).json(response);
                 }
                 req.user = yield this.authUtils.getUserById(userData.id);
-                if (req.user.id == userData.id && req.user.role == enums_1.UserRole.STUDENT && req.user.email == userData.email) {
+                if (req.user.id == userData.id && req.user.role == enums_1.UserRole.STUDENT && req.user.email == userData.email && req.user.mobile == userData.mobile) {
                     next();
                 }
                 else {

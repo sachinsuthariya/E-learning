@@ -10,10 +10,10 @@
     "start-dev": "tsc --watch & nodemon --inspect dist",
     "start-stage": "tsc --watch & nodemon --inspect dist",
     "start-prod": "node dist/index.js",
-    "build": "tsc && mkdir -p uploads && mkdir -p dist/templates && mkdir -p dist/assets && cp -R src/templates/* dist/templates && cp -R src/assets/* dist/assets",
-    "build-dev": "tsc && mkdir -p uploads && mkdir -p dist/templates && mkdir -p dist/assets && cp -R src/templates/* dist/templates && cp -R src/assets/* dist/assets",
-    "build-stage": "tsc && mkdir -p uploads && mkdir -p dist/templates && mkdir -p dist/assets && cp -R src/templates/* dist/templates && cp -R src/assets/* dist/assets",
-    "build-prod": "tsc && mkdir -p uploads && mkdir -p dist/templates && mkdir -p dist/assets && cp -R src/templates/* dist/templates && cp -R src/assets/* dist/assets",
+    "build": "tsc && mkdir -p uploads && mkdir -p dist/templates && cp -R src/templates/* dist/templates",
+    "build-dev": "tsc && mkdir -p uploads && mkdir -p dist/templates && cp -R src/templates/* dist/templates",
+    "build-stage": "tsc && mkdir -p uploads && mkdir -p dist-stage/templates && cp -R src/templates/* dist-stage/templates",
+    "build-prod": "tsc && mkdir -p uploads && mkdir -p dist-prod/templates && cp -R src/templates/* dist-prod/templates",
     "env": "sync-dotenv --sample env.sample"
   },
   "husky": {

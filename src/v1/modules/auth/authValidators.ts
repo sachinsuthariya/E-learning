@@ -26,10 +26,9 @@ export class IsEmailAlreadyExistConstraint implements ValidatorConstraintInterfa
 }
 
 @ValidatorConstraint({ async: true })
-export class IsEmailemailExistConstraint implements ValidatorConstraintInterface {
-
-    public async validate(email: string) {
-        const user = await My.first(Tables.USER, ["id"], "email = ?", [email]);
-        return user ? true : false;
+export class IsMobileAlreadyExistConstraint implements ValidatorConstraintInterface {
+    public async validate(mobile: string) {
+        const user = await My.first(Tables.USER, ['id'], "mobile = ?", [mobile])        
+        return user ? false : true;
     }
 }
