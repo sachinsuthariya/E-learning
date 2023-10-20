@@ -3,7 +3,7 @@ node_modules
 .vscode
 uploads/*
 !uploads/.gitkeep
-/dist
+dist
 dist-dev
 dist-stage
 dist-prod
