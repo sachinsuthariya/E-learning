@@ -47,7 +47,7 @@ export class Middleware {
         return res.status(response.error.code).json(response);
       }
       req.user = await this.authUtils.getUserById(userData.id);
-      if (req.user.id == userData.id && req.user.role == UserRole.PROFESSIOR && req.user.email == userData.email) {
+      if (req.user.id == userData.id && req.user.role == UserRole.PROFESSIOR && req.user.email == userData.email && req.user.mobile && userData.mobile ) {
         next();
       } else {
         const response = ResponseBuilder.genErrorResponse(Constants.UNAUTHORIZED_CODE, req.t("UNAUTHORIZED"));
@@ -73,7 +73,7 @@ export class Middleware {
         return res.status(response.error.code).json(response);
       }
       req.user = await this.authUtils.getUserById(userData.id);
-      if (req.user.id == userData.id && req.user.role == UserRole.STUDENT && req.user.email == userData.email) {
+      if (req.user.id == userData.id && req.user.role == UserRole.STUDENT && req.user.email == userData.email && req.user.mobile == userData.mobile) {
         next();
       } else {
         const response = ResponseBuilder.genErrorResponse(Constants.UNAUTHORIZED_CODE, req.t("UNAUTHORIZED"));

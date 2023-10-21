@@ -18,7 +18,6 @@ const authUtils_1 = require("./authUtils");
 const enums_1 = require("../../../config/enums");
 const utils_1 = require("../../../helpers/utils");
 const sendEmail_1 = require("../../../helpers/sendEmail");
-const fs = require("fs");
 class AuthController {
     constructor() {
         this.authUtils = new authUtils_1.AuthUtils();
@@ -29,20 +28,19 @@ class AuthController {
                 // Encrypt password
                 req.body.password = bcryptjs.hashSync(req.body.password.toString(), constants_1.Constants.PASSWORD_HASH);
                 // Process and save the uploaded image if it exists
-                if (req.body.image) {
-                    const matches = req.body.image.match(/^data:image\/([A-Za-z]+);base64,(.+)$/);
-                    if (matches.length === 3) {
-                        const extension = matches[1]; // Get the file extension (e.g., "png", "jpg", "jpeg", etc.)
-                        const base64Data = matches[2];
-                        const imageBuffer = Buffer.from(base64Data, 'base64');
-                        const imagePath = `uploads/${req.body.id}.${extension}`;
-                        fs.writeFileSync(imagePath, imageBuffer);
-                        req.body.imagePath = imagePath;
-                    }
-                    else {
-                        return res.status(400).send('Invalid image data format');
-                    }
-                }
+                // if (req.body.image) {
+                //   const matches = req.body.image.match(/^data:image\/([A-Za-z]+);base64,(.+)$/);
+                //   if (matches.length === 3) {
+                //     const extension = matches[1]; // Get the file extension (e.g., "png", "jpg", "jpeg", etc.)
+                //     const base64Data = matches[2];
+                //     const imageBuffer = Buffer.from(base64Data, 'base64');
+                //     const imagePath = `uploads/${req.body.id}.${extension}`;
+                //     fs.writeFileSync(imagePath, imageBuffer);
+                //     req.body.imagePath = imagePath;
+                //   } else {
+                //     return res.status(400).send('Invalid image data format');
+                //   }
+                // }
                 const result = yield this.authUtils.createUser(req.body);
                 // JWT token
                 const payload = {
@@ -75,6 +73,7 @@ class AuthController {
                 return res.status(response.code).json(response);
             }
             catch (err) {
+                console.log('err =>', err);
                 const response = responseBuilder_1.ResponseBuilder.genErrorResponse(constants_1.Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
                 return res.status(response.error.code).json(response);
             }

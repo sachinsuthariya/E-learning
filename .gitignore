@@ -3,9 +3,9 @@ node_modules
 .vscode
 uploads/*
 !uploads/.gitkeep
-# dist
-# dist-dev
-# dist-stage
-# dist-prod
+dist
+dist-dev
+dist-stage
+dist-prod
 build
 npm-debug.log
