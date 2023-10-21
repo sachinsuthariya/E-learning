@@ -8,7 +8,8 @@ import { CurrentAffairsRoute } from "./v1/modules/current-affairs/currentAffairs
 import { CourseCategoriesRoute } from "./v1/modules/course-categories/courseCategoriesRoute";
 import { CourseRoute } from "./v1/modules/course/courseRoute";
 import { ExamRoute } from "./v1/modules/exam/examRoute";
-import { QuestionRoute } from "./v1/modules/question/questionRoute"
+import { QuestionRoute } from "./v1/modules/question/questionRoute";
+import { BookRoute } from "./v1/modules/book/bookRoute"
 
 export class Routes {
   protected basePath: string;
@@ -41,6 +42,7 @@ export class Routes {
     router.use("/course", CourseRoute);
     router.use("/exam", ExamRoute);
     router.use("/question", QuestionRoute)
+    router.use("/book", BookRoute)
 
     router.all("/*", (req, res) => {
       return res.status(404).json({

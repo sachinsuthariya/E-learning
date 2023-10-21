@@ -46,8 +46,9 @@ class ExamUtils {
             ]);
             const currentDate = new Date(); // Get the current date
             const pastExams = [];
-            const presentExams = [];
-            const futureExams = [];
+            let presentExams = [];
+            const presentExamsArr = [];
+            const futureExamsArr = [];
             const noDateAvailableExams = [];
             getAllExams.forEach((exam) => {
                 const examDate = new Date(exam.exam_date);
@@ -63,18 +64,16 @@ class ExamUtils {
                     pastExams.push(exam);
                 }
                 else if (startTimeOnly > currentDateOnly) {
-                    futureExams.push(exam);
+                    futureExamsArr.push(exam);
                 }
                 else {
-                    presentExams.push(exam);
+                    presentExamsArr.push(exam);
                 }
+                presentExams = presentExamsArr.concat(futureExamsArr);
                 // Check if the loginUserId is enrolled in the exam
                 try {
                     const userIdArray = JSON.parse(exam.user_id);
-                    console.log("userIdArray =>", userIdArray);
-                    console.log("loginUserId =>", loginUserId, "cond =", userIdArray.includes(loginUserId));
                     exam.isEnrolledUser = userIdArray.includes(loginUserId) ? true : false;
-                    console.log("exam.isEnrolledUser ==>", exam.isEnrolledUser);
                 }
                 catch (error) {
                     exam.isEnrolledUser = false;
@@ -83,10 +82,10 @@ class ExamUtils {
                 delete exam.user_id;
             });
             return {
-                pastExams,
-                presentExams,
-                futureExams,
-                noDateAvailableExams,
+                // pastExams,
+                presentExams
+                // futureExams,
+                // noDateAvailableExams,
             };
         });
         this.updateById = (examId, examDetails) => __awaiter(this, void 0, void 0, function* () {
@@ -120,7 +119,7 @@ class ExamUtils {
       INNER JOIN ${tables_1.Tables.MCQ_OPTION} AS mcq ON q.id = mcq.questionId
       LEFT JOIN ${tables_1.Tables.STUDENT_EXAM_SUBMISSION} AS sub ON sub.questionId = q.id AND sub.userId = '${userId}'`;
             const condition = `q.examId = '${examId}'`;
-            const fields = `q.id as id, q.question, q.questionType, q.points, q.nagativePoints, q.examId, e.duration_minutes AS duration, sub.mcqId as selectedMCQ,
+            const fields = `q.id as id, q.question, q.questionType, q.points, q.nagativePoints, q.examId, TIME(e.start_time) AS startTime, TIME(e.end_time) AS endTime, e.duration_minutes AS duration, sub.mcqId as selectedMCQ,
       GROUP_CONCAT(
         JSON_OBJECT(
             'id', mcq.id,

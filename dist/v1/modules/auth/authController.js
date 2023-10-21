@@ -52,8 +52,6 @@ class AuthController {
                     role: req.body.role,
                     dob: req.body.dob,
                     city: req.body.city,
-                    upscAttempts: req.body.upscAttempts,
-                    upscTargetYear: req.body.upscTargetYear,
                 };
                 const token = jwt_1.Jwt.getAuthToken(payload);
                 const emailData = {
@@ -69,8 +67,8 @@ class AuthController {
                     role: req.body.role,
                     dob: req.body.dob,
                     city: req.body.city,
-                    upscAttempts: req.body.upscAttempts,
-                    upscTargetYear: req.body.upscTargetYear,
+                    // upscAttempts: req.body.upscAttempts,
+                    // upscTargetYear: req.body.upscTargetYear,
                     token,
                 };
                 const response = responseBuilder_1.ResponseBuilder.genSuccessResponse(constants_1.Constants.SUCCESS_CODE, req.t("SUCCESS"), userDetails);
@@ -91,8 +89,6 @@ class AuthController {
                     role: req.body._authentication.role,
                     dob: req.body._authentication.dob,
                     city: req.body._authentication.city,
-                    upscAttempts: req.body._authentication.upscAttempts,
-                    upscTargetYear: req.body._authentication.upscTargetYear,
                 };
                 const token = jwt_1.Jwt.getAuthToken(payload);
                 const data = {
@@ -104,8 +100,8 @@ class AuthController {
                     role: req.body._authentication.role,
                     dob: req.body._authentication.dob,
                     city: req.body._authentication.city,
-                    upscAttempts: req.body._authentication.upscAttempts,
-                    upscTargetYear: req.body._authentication.upscTargetYear,
+                    // upscAttempts: req.body._authentication.upscAttempts,
+                    // upscTargetYear: req.body._authentication.upscTargetYear,
                     token,
                 };
                 const response = responseBuilder_1.ResponseBuilder.genSuccessResponse(constants_1.Constants.SUCCESS_CODE, req.t("SUCCESS_LOGIN"), data);

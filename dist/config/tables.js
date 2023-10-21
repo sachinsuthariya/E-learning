@@ -8,6 +8,7 @@ Tables.USER = "users";
 Tables.CURRENT_AFFAIRS = "current_affairs";
 Tables.CATEGORY = "categories";
 Tables.COURSE = "courses";
+Tables.BOOK = "books";
 Tables.EXAM = "exams";
 Tables.QUESTION = "questions";
 Tables.MCQ_OPTION = "mcq_options";

@@ -93,6 +93,7 @@ export class CourseController {
                 isFree: req.body.isFree,
                 materials: req.body.materials,
                 price: req.body.price,
+                payment_url: req.body.payment_url,
                 material_price: req.body.material_price,
                 status: req.body.status
             }

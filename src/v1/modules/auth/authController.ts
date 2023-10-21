@@ -47,8 +47,8 @@ public signup = async (req: any, res: Response) => {
       role: req.body.role,
       dob: req.body.dob,
       city: req.body.city,
-      upscAttempts: req.body.upscAttempts,
-      upscTargetYear: req.body.upscTargetYear,
+      // upscAttempts: req.body.upscAttempts,
+      // upscTargetYear: req.body.upscTargetYear,
     };
 
     const token = Jwt.getAuthToken(payload);
@@ -72,8 +72,8 @@ public signup = async (req: any, res: Response) => {
       role: req.body.role,
       dob: req.body.dob,
       city: req.body.city,
-      upscAttempts: req.body.upscAttempts,
-      upscTargetYear: req.body.upscTargetYear,
+      // upscAttempts: req.body.upscAttempts,
+      // upscTargetYear: req.body.upscTargetYear,
       token,
     };
     const response = ResponseBuilder.genSuccessResponse(
@@ -101,8 +101,8 @@ public signup = async (req: any, res: Response) => {
         role: req.body._authentication.role,
         dob: req.body._authentication.dob,
         city: req.body._authentication.city,
-        upscAttempts: req.body._authentication.upscAttempts,
-        upscTargetYear: req.body._authentication.upscTargetYear,
+        // upscAttempts: req.body._authentication.upscAttempts,
+        // upscTargetYear: req.body._authentication.upscTargetYear,
       };
       const token = Jwt.getAuthToken(payload);
 
@@ -115,8 +115,8 @@ public signup = async (req: any, res: Response) => {
         role: req.body._authentication.role,
         dob: req.body._authentication.dob,
         city: req.body._authentication.city,
-        upscAttempts: req.body._authentication.upscAttempts,
-        upscTargetYear: req.body._authentication.upscTargetYear,
+        // upscAttempts: req.body._authentication.upscAttempts,
+        // upscTargetYear: req.body._authentication.upscTargetYear,
         token,
       };
       const response = ResponseBuilder.genSuccessResponse(

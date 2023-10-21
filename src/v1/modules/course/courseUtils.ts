@@ -17,7 +17,7 @@ export class CourseUtils {
   public getById = async (courseId: string) =>
     await My.first(
       Tables.COURSE,
-      ["id", "title", "description", "isIncludesLiveClass", "category_id", "isFree", "materials", "price", "material_price","attachment", "status", "created_at", "updated_at", "deleted_at"],
+      ["id", "title", "description", "isIncludesLiveClass", "category_id", "isFree", "materials", "payment_url", "price", "material_price","attachment", "status", "created_at", "updated_at", "deleted_at"],
       "id=?",
       [courseId]
     );
@@ -37,6 +37,7 @@ export class CourseUtils {
       "isFree",
       "materials",
       "price",
+      "payment_url",
       "material_price",
       "attachment",
       "status",

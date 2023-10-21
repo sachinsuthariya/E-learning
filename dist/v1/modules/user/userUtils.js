@@ -22,7 +22,7 @@ class UserUtils {
          * @returns
          */
         this.getUserById = (userId) => __awaiter(this, void 0, void 0, function* () {
-            return yield My.first(tables_1.Tables.USER, ["id", "firstName", "lastName", "email", "mobile", "role", "dob", "city", "upscAttempts", "upscTargetYear", "status"], "id=?", [userId]);
+            return yield My.first(tables_1.Tables.USER, ["id", "firstName", "lastName", "email", "mobile", "role", "dob", "city", "status"], "id=?", [userId]);
         });
         /**
          * Get All Users
@@ -38,8 +38,8 @@ class UserUtils {
                 "role",
                 "dob",
                 "city",
-                "upscAttempts",
-                "upscTargetYear",
+                // "upscAttempts",
+                // "upscTargetYear",
                 "status"
             ]);
             return getAllUsers;

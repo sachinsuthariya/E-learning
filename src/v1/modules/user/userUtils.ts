@@ -15,7 +15,7 @@ export class UserUtils {
   public getUserById = async (userId: string) =>
     await My.first(
       Tables.USER,
-      ["id", "firstName", "lastName", "email", "mobile", "role", "dob", "city", "upscAttempts", "upscTargetYear", "status"],
+      ["id", "firstName", "lastName", "email", "mobile", "role", "dob", "city", "status"],
       "id=?",
       [userId]
     );
@@ -34,8 +34,8 @@ export class UserUtils {
       "role",
       "dob",
       "city",
-      "upscAttempts",
-      "upscTargetYear",
+      // "upscAttempts",
+      // "upscTargetYear",
       "status"
     ]);
 

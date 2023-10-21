@@ -75,10 +75,11 @@ class QuestionController {
             try {
                 const questionId = req.params.id;
                 const questionDetails = {
-                    question: req.body.title,
-                    questionType: req.body.examDate,
-                    points: req.body.durationMinutes,
-                    nagativePoints: req.body.startTime,
+                    examId: req.body.examId,
+                    question: req.body.question,
+                    questionType: req.body.questionType,
+                    points: req.body.points,
+                    nagativePoints: req.body.nagativePoints,
                 };
                 const updateExam = yield this.questionUtils.updateById(questionId, questionDetails);
                 if (!updateExam || !updateExam.affectedRows) {

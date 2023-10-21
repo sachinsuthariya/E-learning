@@ -12,6 +12,7 @@ const courseCategoriesRoute_1 = require("./v1/modules/course-categories/courseCa
 const courseRoute_1 = require("./v1/modules/course/courseRoute");
 const examRoute_1 = require("./v1/modules/exam/examRoute");
 const questionRoute_1 = require("./v1/modules/question/questionRoute");
+const bookRoute_1 = require("./v1/modules/book/bookRoute");
 class Routes {
     constructor(NODE_ENV) {
         switch (NODE_ENV) {
@@ -39,6 +40,7 @@ class Routes {
         router.use("/course", courseRoute_1.CourseRoute);
         router.use("/exam", examRoute_1.ExamRoute);
         router.use("/question", questionRoute_1.QuestionRoute);
+        router.use("/book", bookRoute_1.BookRoute);
         router.all("/*", (req, res) => {
             return res.status(404).json({
                 error: l10n.t("ERR_URL_NOT_FOUND"),

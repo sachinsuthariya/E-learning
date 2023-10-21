@@ -45,8 +45,9 @@ export class ExamUtils {
     const currentDate = new Date(); // Get the current date
   
     const pastExams = [];
-    const presentExams = [];
-    const futureExams = [];
+    let presentExams = [];
+    const presentExamsArr = [];
+    const futureExamsArr = [];
     const noDateAvailableExams = [];
   
     getAllExams.forEach((exam) => {
@@ -75,20 +76,16 @@ export class ExamUtils {
       } else if (startTimeOnly < currentDateOnly) {
         pastExams.push(exam);
       } else if (startTimeOnly > currentDateOnly) {
-        futureExams.push(exam);
+        futureExamsArr.push(exam);
       } else {
-        presentExams.push(exam);
+        presentExamsArr.push(exam);
       }
+      presentExams = presentExamsArr.concat(futureExamsArr);
     // Check if the loginUserId is enrolled in the exam
     try {
-      const userIdArray = JSON.parse(exam.user_id);
-      console.log("userIdArray =>", userIdArray);
-      console.log("loginUserId =>", loginUserId, "cond =", userIdArray.includes(loginUserId));
-      
+      const userIdArray = JSON.parse(exam.user_id);     
       
       exam.isEnrolledUser = userIdArray.includes(loginUserId) ? true : false;
-
-      console.log("exam.isEnrolledUser ==>", exam.isEnrolledUser);
       
     } catch (error) {
       exam.isEnrolledUser = false;
@@ -98,10 +95,10 @@ export class ExamUtils {
     });
   
     return {
-      pastExams,
-      presentExams,
-      futureExams,
-      noDateAvailableExams,
+      // pastExams,
+      presentExams
+      // futureExams,
+      // noDateAvailableExams,
     };
   };
   
@@ -140,7 +137,7 @@ export class ExamUtils {
       LEFT JOIN ${Tables.STUDENT_EXAM_SUBMISSION} AS sub ON sub.questionId = q.id AND sub.userId = '${userId}'`;
 
     const condition = `q.examId = '${examId}'`;
-    const fields = `q.id as id, q.question, q.questionType, q.points, q.nagativePoints, q.examId, e.duration_minutes AS duration, sub.mcqId as selectedMCQ,
+    const fields = `q.id as id, q.question, q.questionType, q.points, q.nagativePoints, q.examId, TIME(e.start_time) AS startTime, TIME(e.end_time) AS endTime, e.duration_minutes AS duration, sub.mcqId as selectedMCQ,
       GROUP_CONCAT(
         JSON_OBJECT(
             'id', mcq.id,

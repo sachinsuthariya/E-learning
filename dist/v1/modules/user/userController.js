@@ -32,8 +32,8 @@ class UserController {
                     role: req.body.role,
                     dob: req.body.dob,
                     city: req.body.city,
-                    upscAttempts: req.body.upscAttempts,
-                    upscTargetYear: req.body.upscTargetYear,
+                    // upscAttempts: req.body.upscAttempts,
+                    // upscTargetYear: req.body.upscTargetYear,
                     status: req.body.status
                 };
                 yield this.userUtils.createUser(user);
@@ -115,11 +115,7 @@ class UserController {
                     lastName: req.body.lastName,
                     mobile: req.body.mobile,
                     email: req.body.email,
-                    // role: req.body.role,
-                    dob: req.body.dob,
-                    city: req.body.city,
-                    upscAttempts: req.body.upscAttempts,
-                    upscTargetYear: req.body.upscTargetYear,
+                    role: req.body.role,
                 };
                 const updatedUser = yield this.userUtils.updateUser(userId, userUpdates);
                 if (!updatedUser) {
