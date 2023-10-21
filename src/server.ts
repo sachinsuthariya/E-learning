@@ -40,6 +40,7 @@ export class App {
     l10n.setTranslationsFile("en", `src/language/translation.en.json`);
     this.app.use(l10n.enableL10NExpress);
     // this.app.use(busboy({ immediate: true }));
+    this.app.use(express.static('public'));
     this.app.use(fileUpload({
       parseNested: true,
       createParentPath: true

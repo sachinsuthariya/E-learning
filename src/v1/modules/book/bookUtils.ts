@@ -35,6 +35,7 @@ export class BookUtils {
       "isFree",
       "price",
       "payment_url",
+      "attachment",
       "status",
       "created_at",
       "updated_at",
