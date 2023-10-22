@@ -52,5 +52,5 @@ export class Constants {
 
   public static readonly IMAGE_PATH = "/images/";
   public static readonly IMAGE_THUMBNAIL_PATH = "/images/thumbnails/";
-  public static readonly DOCUMENT_PATH = "/document/";
+  public static readonly DOCUMENT_PATH = "/documents/";
 }

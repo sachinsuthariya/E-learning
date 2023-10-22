@@ -15,13 +15,12 @@ export class BookController {
   public create = async (req: any, res: Response) => {
     try {
       req.body.id = Utils.generateUUID();
-      const file = req.files.file;
-      if (file) {
-        req.body.attachment = Media.uploadImage(file, FileTypes.BOOKS)
+      const image = req.files.image;
+      if (image) {
+        req.body.attachment = Media.uploadImage(image, FileTypes.BOOKS)
       }
       await this.bookUtils.create(req.body);
       const book = await this.bookUtils.getById(req.body.id);
-
       const response = ResponseBuilder.genSuccessResponse(
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
@@ -60,12 +59,7 @@ export class BookController {
     try {
       const books = await this.bookUtils.getAllBooks();
       books.map((book) => {
-        book.attachment = book.attachment
-          ? {
-              url: process.env.LOCAL_FILE_PATH + Constants.IMAGE_PATH + book.attachment,
-              thumbnail: process.env.LOCAL_FILE_PATH + Constants.IMAGE_THUMBNAIL_PATH + book.attachment,
-            }
-          : Constants.DEFAULT_IMAGE
+        book.attachment = Utils.getImagePath(book.attachment)
         return book;
       });
 
@@ -75,9 +69,7 @@ export class BookController {
         books
       );
       return res.status(response.code).json(response);
-    } catch (err) {
-      console.log('err =>', err);
-      
+    } catch (err) {      
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")
@@ -85,6 +77,7 @@ export class BookController {
       return res.status(response.error.code).json(response);
     }
   };
+
   public delete = async (req: any, res: Response) => {
     try {
       const id = req.params.id;
@@ -142,8 +135,7 @@ export class BookController {
   public update = async (req: any, res: Response) => {
     try {
       const bookId = req.params.id;
-      const file = req.files.file;
-      
+      const image = req.files.image;
       const bookDetails: any = {
         title: req.body.title,
         description: req.body.description,
@@ -155,8 +147,9 @@ export class BookController {
         status: req.body.status,
       };
 
-      if (file) {
-        bookDetails.attachment = Media.uploadImage(file, FileTypes.BOOKS)
+      if (image) {
+        bookDetails.attachment = Media.uploadImage(image, FileTypes.BOOKS)
+        await this.bookUtils.deleteImage(bookId)
       }
 
       const updateBook = await this.bookUtils.updateById(bookId, bookDetails);
