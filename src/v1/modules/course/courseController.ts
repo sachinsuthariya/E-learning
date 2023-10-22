@@ -38,8 +38,17 @@ export class CourseController {
     }
     public allCourses = async (req: any, res: Response) => {
         try {
-            const getAllCourses = await this.courseUtils.getAllCourses();
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), getAllCourses);
+            const courses = await this.courseUtils.getAllCourses();
+            courses.map((course) => {
+                course.attachment = course.attachment
+                  ? {
+                      url: process.env.LOCAL_FILE_PATH + Constants.IMAGE_PATH + course.attachment,
+                      thumbnail: process.env.LOCAL_FILE_PATH + Constants.IMAGE_THUMBNAIL_PATH + course.attachment,
+                    }
+                  : Constants.DEFAULT_IMAGE
+                return course;
+              });
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), courses);
             return res.status(response.code).json(response);
         } catch (err) {
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));

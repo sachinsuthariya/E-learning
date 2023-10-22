@@ -60,12 +60,29 @@ export class CurrentAffairsController {
   };
   public allCurrentAffairs = async (req: any, res: Response) => {
     try {
-      const getAllCurrentAffairs =
+      const currentAffairs =
         await this.currentAffairsUtils.getAllCurrentAffairs();
+
+      currentAffairs.map((currentAffair) => {
+        currentAffair.attachment = currentAffair.attachment
+          ? {
+              url:
+                process.env.LOCAL_FILE_PATH +
+                Constants.IMAGE_PATH +
+                currentAffair.attachment,
+              thumbnail:
+                process.env.LOCAL_FILE_PATH +
+                Constants.IMAGE_THUMBNAIL_PATH +
+                currentAffair.attachment,
+            }
+          : Constants.DEFAULT_IMAGE;
+        return currentAffair;
+      });
+      
       const response = ResponseBuilder.genSuccessResponse(
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
-        getAllCurrentAffairs
+        currentAffairs
       );
       return res.status(response.code).json(response);
     } catch (err) {
