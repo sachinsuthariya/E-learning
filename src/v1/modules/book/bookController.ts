@@ -6,6 +6,8 @@ import { Jwt } from "../../../helpers/jwt";
 import { ResponseBuilder } from "../../../helpers/responseBuilder";
 import { BookUtils } from "./bookUtils";
 import { Utils } from "../../../helpers/utils";
+import { Media } from "../../../helpers/media";
+import { FileTypes } from "../../../config/enums";
 
 export class BookController {
   private bookUtils: BookUtils = new BookUtils();
@@ -13,6 +15,10 @@ export class BookController {
   public create = async (req: any, res: Response) => {
     try {
       req.body.id = Utils.generateUUID();
+      const file = req.files.file;
+      if (file) {
+        req.body.attachment = Media.uploadImage(file, FileTypes.BOOKS)
+      }
       await this.bookUtils.create(req.body);
       const book = await this.bookUtils.getById(req.body.id);
 
@@ -56,8 +62,8 @@ export class BookController {
       books.map((book) => {
         book.attachment = book.attachment
           ? {
-              url: book.attachment,
-              thumbnail: book.attachment,
+              url: process.env.LOCAL_FILE_PATH + Constants.IMAGE_PATH + book.attachment,
+              thumbnail: process.env.LOCAL_FILE_PATH + Constants.IMAGE_THUMBNAIL_PATH + book.attachment,
             }
           : Constants.DEFAULT_IMAGE
         return book;
@@ -70,6 +76,8 @@ export class BookController {
       );
       return res.status(response.code).json(response);
     } catch (err) {
+      console.log('err =>', err);
+      
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")
@@ -134,7 +142,9 @@ export class BookController {
   public update = async (req: any, res: Response) => {
     try {
       const bookId = req.params.id;
-      const bookDetails = {
+      const file = req.files.file;
+      
+      const bookDetails: any = {
         title: req.body.title,
         description: req.body.description,
         // category_id: req.body.category_id,
@@ -144,6 +154,10 @@ export class BookController {
         payment_url: req.body.payment_url,
         status: req.body.status,
       };
+
+      if (file) {
+        bookDetails.attachment = Media.uploadImage(file, FileTypes.BOOKS)
+      }
 
       const updateBook = await this.bookUtils.updateById(bookId, bookDetails);
 

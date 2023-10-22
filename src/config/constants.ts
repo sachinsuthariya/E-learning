@@ -46,7 +46,11 @@ export class Constants {
   };
 
   public static readonly DEFAULT_IMAGE = {
-    url: `../assets/images/default.jpg`,
-    thumbnail: `../assets/images/default.jpg`,
+    url: `http://localhost:3000/assets/images/default.jpg`,
+    thumbnail: `http://localhost:3000/assets/images/default.jpg`,
   };
+
+  public static readonly IMAGE_PATH = "/images/";
+  public static readonly IMAGE_THUMBNAIL_PATH = "/images/thumbnails/";
+  public static readonly DOCUMENT_PATH = "/document/";
 }

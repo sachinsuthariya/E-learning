@@ -35,7 +35,7 @@ export class Media {
       .then((data: any) => {
         const thumbnailPath = path.join(
           process.cwd(),
-          `uploads/images/${type}/thumbnails`
+          `uploads/images/thumbnails/${type}`
         );
         // Create the directory if it doesn't exist
         if (!fs.existsSync(thumbnailPath)) {

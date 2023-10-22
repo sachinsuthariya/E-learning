@@ -11,6 +11,7 @@ import * as morgan from "morgan"; // log requests to the console (express4)
 import { DB } from "./database";
 import { Log } from "./helpers/logger";
 import { Routes } from "./routes";
+import * as path from "path";
 
 dotenv.config();
 // initialize database
@@ -40,7 +41,9 @@ export class App {
     l10n.setTranslationsFile("en", `src/language/translation.en.json`);
     this.app.use(l10n.enableL10NExpress);
     // this.app.use(busboy({ immediate: true }));
-    this.app.use(express.static('public'));
+    this.app.use('/assets', express.static(path.join(__dirname, 'assets')));
+    this.app.use('/uploads', express.static(path.join('uploads')));
+
     this.app.use(fileUpload({
       parseNested: true,
       createParentPath: true
