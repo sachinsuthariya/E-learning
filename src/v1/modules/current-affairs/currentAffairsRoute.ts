@@ -19,6 +19,7 @@ router.delete("/:id", currentAffairsController.delete);
 router.patch("/:id", currentAffairsController.restore);
 router.get("/:id", currentAffairsController.getById);
 router.get("/", currentAffairsController.allCurrentAffairs); // all current affairs
+router.post("/upload-files", currentAffairsController.uploadFiles)
 
 // Export the express.Router() instance to be used by server.ts
 export const CurrentAffairsRoute: Router = router;

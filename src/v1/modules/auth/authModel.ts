@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty, IsString, Validate } from "class-validator";
 
 import { Model } from "../../../model";
-import { IsEmailAlreadyExistConstraint, IsEmailemailExistConstraint, IsPasswordMatchesRequirementsConstraint } from "./authValidators";
+import { IsEmailAlreadyExistConstraint, IsMobileAlreadyExistConstraint, IsPasswordMatchesRequirementsConstraint } from "./authValidators";
 
 export class AuthModel extends Model {
 
@@ -15,6 +15,9 @@ export class AuthModel extends Model {
 
     @IsNotEmpty()
     @IsString()
+    @Validate(IsMobileAlreadyExistConstraint, {
+        message: "ERR_MOBILE_ALREADY_EXISTS",
+    })
     public mobile: string;
 
     @IsNotEmpty()

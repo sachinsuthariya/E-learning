@@ -40,9 +40,17 @@ export class Constants {
   public static readonly UPLOAD_TYPES = { PROFILE_PICTURE: "PROFILE_PICTURE" };
   public static readonly UPLOAD_SIZES = { PROFILE_PICTURE: 2000000 };
 
-
   public static readonly EMAIL_SUBJECTS = {
     SINGUP: "Welcome to MISSION IAS",
-    FORGET_PASSWORD: "Forget Password"
-  }
+    FORGET_PASSWORD: "Forget Password",
+  };
+
+  public static readonly DEFAULT_IMAGE = {
+    url: `http://localhost:3000/assets/images/default.jpg`,
+    thumbnail: `http://localhost:3000/assets/images/default.jpg`,
+  };
+
+  public static readonly IMAGE_PATH = "/images/";
+  public static readonly IMAGE_THUMBNAIL_PATH = "/images/thumbnails/";
+  public static readonly DOCUMENT_PATH = "/documents/";
 }

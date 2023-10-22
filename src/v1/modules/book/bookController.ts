@@ -4,28 +4,27 @@ import _ = require("lodash");
 import { Constants } from "../../../config/constants";
 import { Jwt } from "../../../helpers/jwt";
 import { ResponseBuilder } from "../../../helpers/responseBuilder";
-import { CourseUtils } from "./courseUtils";
+import { BookUtils } from "./bookUtils";
 import { Utils } from "../../../helpers/utils";
 import { Media } from "../../../helpers/media";
 import { FileTypes } from "../../../config/enums";
 
-export class CourseController {
-  private courseUtils: CourseUtils = new CourseUtils();
+export class BookController {
+  private bookUtils: BookUtils = new BookUtils();
 
   public create = async (req: any, res: Response) => {
     try {
       req.body.id = Utils.generateUUID();
-      const image = req.files.file;
+      const image = req.files.image;
       if (image) {
-        req.body.attachment = Media.uploadImage(image, FileTypes.COURSES)
+        req.body.attachment = Media.uploadImage(image, FileTypes.BOOKS)
       }
-      await this.courseUtils.create(req.body);
-      const course = await this.courseUtils.getById(req.body.id);
-
+      await this.bookUtils.create(req.body);
+      const book = await this.bookUtils.getById(req.body.id);
       const response = ResponseBuilder.genSuccessResponse(
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
-        course
+        book
       );
       return res.status(response.code).json(response);
     } catch (err) {
@@ -40,12 +39,12 @@ export class CourseController {
   public getById = async (req: any, res: Response) => {
     try {
       const id = req.params.id;
-      const course = await this.courseUtils.getById(id);
+      const book = await this.bookUtils.getById(id);
 
       const response = ResponseBuilder.genSuccessResponse(
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
-        course
+        book
       );
       return res.status(response.code).json(response);
     } catch (err) {
@@ -56,16 +55,17 @@ export class CourseController {
       return res.status(response.error.code).json(response);
     }
   };
-  public allCourses = async (req: any, res: Response) => {
+  public allBooks = async (req: any, res: Response) => {
     try {
-      const courses = await this.courseUtils.getAllCourses();
+      const books = await this.bookUtils.getAllBooks();
+
       const response = ResponseBuilder.genSuccessResponse(
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
-        courses
+        books
       );
       return res.status(response.code).json(response);
-    } catch (err) {
+    } catch (err) {      
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")
@@ -73,12 +73,13 @@ export class CourseController {
       return res.status(response.error.code).json(response);
     }
   };
+
   public delete = async (req: any, res: Response) => {
     try {
       const id = req.params.id;
-      const course = await this.courseUtils.destroy(id);
+      const book = await this.bookUtils.destroy(id);
 
-      if (!course || !course.affectedRows) {
+      if (!book || !book.affectedRows) {
         const response = ResponseBuilder.genSuccessResponse(
           Constants.FAIL_CODE,
           req.t("INAVALID_REQUEST")
@@ -103,9 +104,9 @@ export class CourseController {
   public restore = async (req: any, res: Response) => {
     try {
       const id = req.params.id;
-      const course = await this.courseUtils.restoreCourse(id);
+      const book = await this.bookUtils.restoreBook(id);
 
-      if (!course || !course.affectedRows) {
+      if (!book || !book.affectedRows) {
         const response = ResponseBuilder.genSuccessResponse(
           Constants.FAIL_CODE,
           req.t("INAVALID_REQUEST")
@@ -129,32 +130,27 @@ export class CourseController {
 
   public update = async (req: any, res: Response) => {
     try {
-      const courseId = req.params.id;
+      const bookId = req.params.id;
       const image = req.files.image;
-      const courseDetails: any = {
+      const bookDetails: any = {
         title: req.body.title,
         description: req.body.description,
-        category_id: req.body.category_id,
-        isIncludesLiveClass: req.body.isIncludesLiveClass,
+        // category_id: req.body.category_id,
+        // isIncludesLiveClass: req.body.isIncludesLiveClass,
         isFree: req.body.isFree,
-        materials: req.body.materials,
         price: req.body.price,
         payment_url: req.body.payment_url,
-        material_price: req.body.material_price,
         status: req.body.status,
       };
 
       if (image) {
-        courseDetails.attachment = Media.uploadImage(image, FileTypes.COURSES);
-        await this.courseUtils.deleteImage(courseId);
+        bookDetails.attachment = Media.uploadImage(image, FileTypes.BOOKS)
+        await this.bookUtils.deleteImage(bookId)
       }
 
-      const updateCourse = await this.courseUtils.updateById(
-        courseId,
-        courseDetails
-      );
+      const updateBook = await this.bookUtils.updateById(bookId, bookDetails);
 
-      if (!updateCourse || !updateCourse.affectedRows) {
+      if (!updateBook || !updateBook.affectedRows) {
         const response = ResponseBuilder.genErrorResponse(
           Constants.NOT_FOUND_CODE,
           req.t("CURRENT_AFFAIR_NOT_FOUND")
@@ -162,12 +158,12 @@ export class CourseController {
         return res.status(response.error.code).json(response);
       }
 
-      const course = await this.courseUtils.getById(courseId);
+      const book = await this.bookUtils.getById(bookId);
 
       const response = ResponseBuilder.genSuccessResponse(
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
-        course
+        book
       );
       return res.status(response.code).json(response);
     } catch (err) {
@@ -181,17 +177,14 @@ export class CourseController {
 
   public updateStatus = async (req: any, res: Response) => {
     try {
-      const courseId = req.params.id;
-      const courseDetails = {
+      const bookId = req.params.id;
+      const bookDetails = {
         status: req.body.status,
       };
 
-      const updateCourses = await this.courseUtils.updateById(
-        courseId,
-        courseDetails
-      );
+      const updateBooks = await this.bookUtils.updateById(bookId, bookDetails);
 
-      if (!updateCourses || !updateCourses.affectedRows) {
+      if (!updateBooks || !updateBooks.affectedRows) {
         const response = ResponseBuilder.genErrorResponse(
           Constants.NOT_FOUND_CODE,
           req.t("CURRENT_AFFAIR_NOT_FOUND")
@@ -199,12 +192,12 @@ export class CourseController {
         return res.status(response.error.code).json(response);
       }
 
-      const course = await this.courseUtils.getById(courseId);
+      const book = await this.bookUtils.getById(bookId);
 
       const response = ResponseBuilder.genSuccessResponse(
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
-        course
+        book
       );
       return res.status(response.code).json(response);
     } catch (err) {

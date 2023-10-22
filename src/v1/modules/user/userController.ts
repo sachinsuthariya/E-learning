@@ -25,8 +25,8 @@ export class UserController {
                 role: req.body.role,
                 dob: req.body.dob,
                 city: req.body.city,
-                upscAttempts: req.body.upscAttempts,
-                upscTargetYear: req.body.upscTargetYear,
+                // upscAttempts: req.body.upscAttempts,
+                // upscTargetYear: req.body.upscTargetYear,
                 status: req.body.status
             };
 
@@ -116,12 +116,12 @@ export class UserController {
                 lastName: req.body.lastName,
                 mobile: req.body.mobile,
                 email: req.body.email,
-                // role: req.body.role,
-                dob: req.body.dob,
-                city: req.body.city,
-                upscAttempts: req.body.upscAttempts,
-                upscTargetYear: req.body.upscTargetYear,
-                // status: req.body.status
+                role: req.body.role,
+                // dob: req.body.dob ?? '',
+                // city: req.body.city ?? '',
+                // upscAttempts: req.body.upscAttempts,
+                // upscTargetYear: req.body.upscTargetYear,
+                // status: req.body.status ?? ''
             };
 
             const updatedUser = await this.userUtils.updateUser(userId, userUpdates);
@@ -130,7 +130,7 @@ export class UserController {
                 const response = ResponseBuilder.genErrorResponse(Constants.NOT_FOUND_CODE, "User not found");
                 return res.status(response.error.code).json(response);
             }
-
+            
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, "User updated successfully", updatedUser);
             return res.status(response.code).json(response);
         } catch (err) {
