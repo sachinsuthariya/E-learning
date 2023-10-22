@@ -19,6 +19,10 @@ export class CurrentAffairsController {
   public create = async (req: any, res: Response) => {
     try {
       req.body.id = Utils.generateUUID();
+      const image = req.files.image;
+      if (image) {
+        req.body.attachment = Media.uploadImage(image, FileTypes.CURRENT_AFFAIRS)
+      }
       await this.currentAffairsUtils.create(req.body);
       const currentAffairs = await this.currentAffairsUtils.getById(
         req.body.id
@@ -63,22 +67,6 @@ export class CurrentAffairsController {
       const currentAffairs =
         await this.currentAffairsUtils.getAllCurrentAffairs();
 
-      currentAffairs.map((currentAffair) => {
-        currentAffair.attachment = currentAffair.attachment
-          ? {
-              url:
-                process.env.LOCAL_FILE_PATH +
-                Constants.IMAGE_PATH +
-                currentAffair.attachment,
-              thumbnail:
-                process.env.LOCAL_FILE_PATH +
-                Constants.IMAGE_THUMBNAIL_PATH +
-                currentAffair.attachment,
-            }
-          : Constants.DEFAULT_IMAGE;
-        return currentAffair;
-      });
-      
       const response = ResponseBuilder.genSuccessResponse(
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
@@ -152,11 +140,20 @@ export class CurrentAffairsController {
   public update = async (req: any, res: Response) => {
     try {
       const currentAffairId = req.params.id;
-      const currentAffairDetails = {
+      const image = req.files.file;
+      const currentAffairDetails: any = {
         title: req.body.title,
         content: req.body.content,
         status: req.body.status,
       };
+
+      if (image) {
+        currentAffairDetails.attachment = Media.uploadImage(
+          image,
+          FileTypes.COURSES
+        );
+        await this.currentAffairsUtils.deleteImage(currentAffairId);
+      }
 
       const updateCurrentAffairs = await this.currentAffairsUtils.updateById(
         currentAffairId,

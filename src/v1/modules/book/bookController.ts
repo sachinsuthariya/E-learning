@@ -58,10 +58,6 @@ export class BookController {
   public allBooks = async (req: any, res: Response) => {
     try {
       const books = await this.bookUtils.getAllBooks();
-      books.map((book) => {
-        book.attachment = Utils.getImagePath(book.attachment)
-        return book;
-      });
 
       const response = ResponseBuilder.genSuccessResponse(
         Constants.SUCCESS_CODE,

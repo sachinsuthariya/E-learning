@@ -6,6 +6,8 @@ import { Jwt } from "../../../helpers/jwt";
 import { ResponseBuilder } from "../../../helpers/responseBuilder";
 import { ExamUtils } from "./examUtils";
 import { Utils } from "../../../helpers/utils";
+import { Media } from "../../../helpers/media";
+import { FileTypes } from "../../../config/enums";
 
 export class ExamController {
   private examUtils: ExamUtils = new ExamUtils();
@@ -13,6 +15,10 @@ export class ExamController {
   public create = async (req: any, res: Response) => {
     try {
       req.body.id = Utils.generateUUID();
+      const image = req.files.image;
+      if (image) {
+        req.body.attachment = Media.uploadImage(image, FileTypes.EXAMS)
+      }
       await this.examUtils.create(req.body);
       const exam = await this.examUtils.getById(req.body.id);
 
@@ -57,22 +63,6 @@ export class ExamController {
 
       const exams = await this.examUtils.getAllExams(loginUserId);
 
-      exams.presentExams.map((exam) => {
-        exam.attachment = exam.attachment
-          ? {
-              url:
-                process.env.LOCAL_FILE_PATH +
-                Constants.IMAGE_PATH +
-                exam.attachment,
-              thumbnail:
-                process.env.LOCAL_FILE_PATH +
-                Constants.IMAGE_THUMBNAIL_PATH +
-                exam.attachment,
-            }
-          : Constants.DEFAULT_IMAGE;
-        return exam;
-      });
-
       const response = ResponseBuilder.genSuccessResponse(
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
@@ -112,7 +102,8 @@ export class ExamController {
   public update = async (req: any, res: Response) => {
     try {
       const examId = req.params.id;
-      const examDetails = {
+      const image = req.files.image;
+      const examDetails: any = {
         title: req.body.title,
         description: req.body.description,
         exam_date: req.body.exam_date,
@@ -122,6 +113,10 @@ export class ExamController {
         total_marks: req.body.total_marks,
       };
 
+      if (image) {
+        examDetails.attachment = Media.uploadImage(image, FileTypes.EXAMS)
+        this.examUtils.deleteImage(examId)
+      }
       const updateExam = await this.examUtils.updateById(examId, examDetails);
 
       if (!updateExam || !updateExam.affectedRows) {

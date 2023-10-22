@@ -45,7 +45,7 @@ export class BookUtils {
    * @returns
    */
   public getAllBooks = async () => {
-    const getAllBooks = await My.findAll(
+    const books = await My.findAll(
       Tables.BOOK,
       [
         "id",
@@ -64,7 +64,12 @@ export class BookUtils {
       ["deleted"]
     );
 
-    return getAllBooks;
+    books.map((book) => {
+      book.attachment = Utils.getImagePath(book.attachment)
+      return book;
+    });
+
+    return books;
   };
 
   /**

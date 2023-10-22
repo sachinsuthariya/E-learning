@@ -1,6 +1,8 @@
 import * as My from "jm-ez-mysql";
 import { Tables } from "../../../config/tables";
 import { SqlUtils } from "../../../helpers/sqlUtils";
+import { Media } from "../../../helpers/media";
+import { Utils } from "../../../helpers/utils";
 
 export class CurrentAffairsUtils {
   public sqlUtils: SqlUtils = new SqlUtils();
@@ -14,13 +16,27 @@ export class CurrentAffairsUtils {
    * @param currentAffairsDetails
    * @returns
    */
-  public getById = async (currentAffairsId: string) =>
-    await My.first(
+  public getById = async (currentAffairsId: string) => {
+    const currentAffair = await My.first(
       Tables.CURRENT_AFFAIRS,
-      ["id", "title", "content", "status", "created_at", "updated_at","deleted_at"],
+      [
+        "id",
+        "title",
+        "content",
+        "status",
+        "attachment",
+        "created_at",
+        "updated_at",
+        "deleted_at",
+      ],
       "id=?",
       [currentAffairsId]
     );
+
+    currentAffair.attachment = Utils.getImagePath(currentAffair.attachment);
+
+    return currentAffair;
+  };
 
   /**
    * Get All Current Affairs
@@ -28,21 +44,28 @@ export class CurrentAffairsUtils {
    * @returns
    */
   public getAllCurrentAffairs = async () => {
-    const getAllCurrentAffairs = await My.findAll(Tables.CURRENT_AFFAIRS, [
-      "id",
-      "title",
-      "content",
-      "status",
-      "attachment",
-      "created_at",
-      "updated_at",
-      "deleted_at"
-    ],
-    "status!=?",
-    ["deleted"]
+    const currentAffairs = await My.findAll(
+      Tables.CURRENT_AFFAIRS,
+      [
+        "id",
+        "title",
+        "content",
+        "status",
+        "attachment",
+        "created_at",
+        "updated_at",
+        "deleted_at",
+      ],
+      "status!=?",
+      ["deleted"]
     );
 
-    return getAllCurrentAffairs;
+    currentAffairs.map((currentAffair) => {
+      currentAffair.attachment = Utils.getImagePath(currentAffair.attachment);
+      return currentAffair;
+    });
+
+    return currentAffairs;
   };
 
   /**
@@ -51,16 +74,20 @@ export class CurrentAffairsUtils {
    * @returns
    */
   public destroy = async (currentAffairsId: string) => {
-    const currentTimestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const updatedRecord = await My.update(
+    const currentTimestamp = new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace("T", " ");
+    const currentAffair = await My.update(
       Tables.CURRENT_AFFAIRS,
-      { status: "deleted", deleted_at: currentTimestamp},
+      { status: "deleted", deleted_at: currentTimestamp },
       "id=?",
       [currentAffairsId]
     );
 
-    return updatedRecord;
+    this.deleteImage(currentAffairsId);
 
+    return currentAffair;
   };
 
   /**
@@ -68,10 +95,10 @@ export class CurrentAffairsUtils {
    * @param currentAffairsDetails
    * @returns
    */
-  public restoreCurrentAffair = async (currentAffairsId: string) => 
+  public restoreCurrentAffair = async (currentAffairsId: string) =>
     await My.update(
       Tables.CURRENT_AFFAIRS,
-      { status: "draft", deleted_at: null},
+      { status: "draft", deleted_at: null },
       "id=?",
       [currentAffairsId]
     );
@@ -89,4 +116,17 @@ export class CurrentAffairsUtils {
     await My.update(Tables.CURRENT_AFFAIRS, currentAffairDetails, "id=?", [
       currentAffairsId,
     ]);
+
+  public deleteImage = async (currentAffairId: string) => {
+    const currentAffair = await My.first(
+      Tables.CURRENT_AFFAIRS,
+      ["id", "attachment"],
+      "id = ?",
+      [currentAffairId]
+    );
+    if (currentAffair.attachment) {
+      Media.deleteImage(currentAffair.attachment);
+    }
+    return;
+  };
 }
