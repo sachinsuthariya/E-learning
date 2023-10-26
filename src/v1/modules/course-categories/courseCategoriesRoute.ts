@@ -18,6 +18,7 @@ router.put("/status/:id", courseCategoriesController.updateStatus);
 router.delete("/:id", courseCategoriesController.delete);
 router.patch("/:id", courseCategoriesController.restore);
 router.get("/", courseCategoriesController.allCategories); // all categories
+router.get("/:id", courseCategoriesController.getById); // all categories
 
 // Export the express.Router() instance to be used by server.ts
 export const CourseCategoriesRoute: Router = router;

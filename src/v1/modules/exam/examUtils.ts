@@ -112,7 +112,7 @@ export class ExamUtils {
     });
 
     return {
-      // pastExams,
+      pastExams,
       presentExams,
       // futureExams,
       // noDateAvailableExams,

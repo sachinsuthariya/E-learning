@@ -130,8 +130,9 @@ export class BookController {
 
   public update = async (req: any, res: Response) => {
     try {
+      console.log(req.body);
       const bookId = req.params.id;
-      const image = req.files.image;
+      const image = req.files.attachment;
       const bookDetails: any = {
         title: req.body.title,
         description: req.body.description,
@@ -167,6 +168,7 @@ export class BookController {
       );
       return res.status(response.code).json(response);
     } catch (err) {
+      console.log(err);
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")

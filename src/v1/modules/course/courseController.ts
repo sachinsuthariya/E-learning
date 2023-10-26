@@ -15,10 +15,12 @@ export class CourseController {
   public create = async (req: any, res: Response) => {
     try {
       req.body.id = Utils.generateUUID();
+      console.log(req);
       const image = req.files.file;
       if (image) {
         req.body.attachment = Media.uploadImage(image, FileTypes.COURSES)
       }
+      console.log(req.body);
       await this.courseUtils.create(req.body);
       const course = await this.courseUtils.getById(req.body.id);
 
@@ -29,6 +31,7 @@ export class CourseController {
       );
       return res.status(response.code).json(response);
     } catch (err) {
+      console.log(err);
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")
@@ -129,6 +132,7 @@ export class CourseController {
 
   public update = async (req: any, res: Response) => {
     try {
+      console.log(req.body);
       const courseId = req.params.id;
       const image = req.files.image;
       const courseDetails: any = {

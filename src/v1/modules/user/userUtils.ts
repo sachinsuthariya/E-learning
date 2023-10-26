@@ -48,7 +48,17 @@ export class UserUtils {
    * @returns
    */
   public deleteUser = async (userId: string) => {
-    const deletedUser = await My.delete(Tables.USER, "id=?", [userId]);
+    const currentTimestamp = new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace("T", " ");
+    const deletedUser = await My.update(
+      Tables.USER,
+      { status: "Inactive", deleted_at: currentTimestamp },
+      "id=?",
+      [userId]
+    );
+    // const deletedUser = await My.delete(Tables.USER, "id=?", [userId]);
     return deletedUser;
   };
 

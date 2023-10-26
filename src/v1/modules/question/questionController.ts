@@ -69,27 +69,32 @@ export class QuestionController {
 
     public update = async (req: any, res: Response) => {
         try {
-            const questionId = req.params.id;
-            const questionDetails = {
+            const questionId = req.params.id; // Assuming questionId is in the URL parameter
+            const questionInfo = {
                 examId: req.body.examId,
                 question: req.body.question,
-                questionType: req.body.questionType,
                 points: req.body.points,
-                nagativePoints: req.body.nagativePoints,
-            }
-
-            const updateExam = await this.questionUtils.updateById(questionId, questionDetails);
-            
-            if (!updateExam || !updateExam.affectedRows) {
-                const response = ResponseBuilder.genErrorResponse(Constants.NOT_FOUND_CODE, req.t("EXAM_NOT_FOUND"));
-                return res.status(response.error.code).json(response);
-            }
-
-            const exam = await this.questionUtils.getById(questionId);
-            
-            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), exam);
+                nagativePoints: req.body.nagativePoints
+            };
+    
+            // Update the question information
+            await this.questionUtils.updateById(questionId, questionInfo);
+            console.log(req.body);
+            const mcqDetails = req.body.mcqOptions.map((mcq) => ({
+                id: mcq.id,
+                optionText: mcq.optionText,
+                isCorrect: mcq.isCorrect
+            }));
+    
+            // Update MCQ options for the question
+            await this.questionUtils.updateMCQOptions(mcqDetails,questionId);
+    
+            const updatedQuestionDetails = await this.questionUtils.getById(questionId);
+    
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), updatedQuestionDetails);
             return res.status(response.code).json(response);
         } catch (err) {
+            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
