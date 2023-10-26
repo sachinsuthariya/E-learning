@@ -46,8 +46,8 @@ export class Constants {
   };
 
   public static readonly DEFAULT_IMAGE = {
-    url: `http://localhost:3000/assets/images/default.jpg`,
-    thumbnail: `http://localhost:3000/assets/images/default.jpg`,
+    url: `https://console.nocat.tech/img/noImage.jpg`,
+    thumbnail: `https://console.nocat.tech/img/noImage.jpg`,
   };
 
   public static readonly IMAGE_PATH = "/images/";

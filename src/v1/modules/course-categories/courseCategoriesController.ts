@@ -22,13 +22,26 @@ export class CourseCategoriesController {
             return res.status(response.error.code).json(response);
         }
     }
-
+    public getById = async (req: any, res: Response) => {
+        try {
+            const id = req.params.id;
+            const category = await this.courseCategoriesUtils.getById(id);
+            
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
+            return res.status(response.code).json(response);
+        } catch (err) {
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+            return res.status(response.error.code).json(response);
+        }
+    }
+    
     public allCategories = async (req: any, res: Response) => {
         try {
             const getAllCategories = await this.courseCategoriesUtils.getAllCategories();
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), getAllCategories);
             return res.status(response.code).json(response);
         } catch (err) {
+            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
