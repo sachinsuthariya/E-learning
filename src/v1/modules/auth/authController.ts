@@ -156,6 +156,7 @@ public signup = async (req: any, res: Response) => {
           "{USERNAME}": user.firstName || "" + user.lastName || "",
           "{{LINK}}": `${process.env.FE_DOMAIN}/${token}`,
         };
+        console.log(emailData);
         await SendEmail.sendRawMail(
           "forget-password",
           emailData,
@@ -185,6 +186,7 @@ public signup = async (req: any, res: Response) => {
 
   // reset password
   public resetPassword = async (req: any, res: Response) => {
+    console.log(req.body);
     try {
       const token = req.body.token;
       const password = req.body.password;
@@ -219,7 +221,8 @@ public signup = async (req: any, res: Response) => {
         req.t("SOMETHING_WENT_WRONG")
       );
       return res.status(response.error.code).json(response);
-    } catch (err) {        
+    } catch (err) {   
+      console.log(err);     
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")

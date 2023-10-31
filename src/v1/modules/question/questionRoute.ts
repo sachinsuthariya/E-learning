@@ -12,11 +12,11 @@ const questionController = new QuestionController(); // Use the ExamController f
 const middleware = new Middleware();
 
 // exam routes
-router.post("/", v.validate(QuestionModel), questionController.create); 
-router.put("/:id", v.validate(QuestionModel), questionController.update);  // TODO: need improvement
+router.post("/", middleware.isAuthenticated, v.validate(QuestionModel), questionController.create); 
+router.put("/:id", middleware.isAuthenticated, v.validate(QuestionModel), questionController.update);  // TODO: need improvement
 // router.delete("/:id", questionController.delete);
-router.get("/:id", questionController.getById);
-router.get("/", questionController.allQuestions); // TODO: need improvement
+router.get("/:id", middleware.isAuthenticatedUser, questionController.getById);
+router.get("/", middleware.isAuthenticatedUser, questionController.allQuestions); // TODO: need improvement
 
 // Export the express.Router() instance to be used by server.ts
 export const QuestionRoute: Router = router;

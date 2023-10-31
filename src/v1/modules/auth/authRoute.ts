@@ -21,10 +21,10 @@ router.post("/forgot-password", v.validate(ForgotPasswordModel), authController.
 router.post("/reset-password", v.validate(ResetPasswordModel), authController.resetPassword);
 
 // profile
-router.get("/profile", middleware.isAuthenticatedAdmin, authController.getProfile);
-router.put("/profile", middleware.isAuthenticatedAdmin, authController.updateProfile);
+router.get("/profile", middleware.isAuthenticatedUser, authController.getProfile);
+router.put("/profile", middleware.isAuthenticatedUser, authController.updateProfile);
 // change password
-router.post("/change-password", middleware.isAuthenticatedAdmin, authController.changePassword);
+router.post("/change-password", middleware.isAuthenticatedUser, authController.changePassword);
 
 
 // Export the express.Router() instance to be used by server.ts

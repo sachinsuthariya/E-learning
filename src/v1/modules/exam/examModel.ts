@@ -17,7 +17,7 @@ export class ExamModel extends Model {
     public exam_date: Date;
 
     @IsNotEmpty()
-    @IsNumber()
+    // @IsNumber()
     public duration_minutes: number;
 
     @IsNotEmpty()
@@ -29,7 +29,7 @@ export class ExamModel extends Model {
     public end_time: Date;
 
     @IsNotEmpty()
-    @IsNumber()
+    // @IsNumber()
     public total_marks: number;
 
     constructor(body: any) {

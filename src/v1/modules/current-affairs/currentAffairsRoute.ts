@@ -12,14 +12,14 @@ const currentAffairsController = new CurrentAffairsController();
 const middleware = new Middleware();
 
 // current affairs routes
-router.post("/", v.validate(CurrentAffairsModel), currentAffairsController.create); // for internal use only
-router.put("/:id", v.validate(CurrentAffairsModel), currentAffairsController.update);
-router.put("/status/:id", currentAffairsController.updateStatus);
-router.delete("/:id", currentAffairsController.delete);
-router.patch("/:id", currentAffairsController.restore);
-router.get("/:id", currentAffairsController.getById);
+router.post("/", middleware.isAuthenticated, v.validate(CurrentAffairsModel), currentAffairsController.create); // for internal use only
+router.put("/:id", middleware.isAuthenticated, v.validate(CurrentAffairsModel), currentAffairsController.update);
+router.put("/status/:id", middleware.isAuthenticated, currentAffairsController.updateStatus);
+router.delete("/:id", middleware.isAuthenticated, currentAffairsController.delete);
+router.patch("/:id", middleware.isAuthenticated, currentAffairsController.restore);
+router.get("/:id", middleware.isAuthenticatedUser, currentAffairsController.getById);
 router.get("/", currentAffairsController.allCurrentAffairs); // all current affairs
-router.post("/upload-files", currentAffairsController.uploadFiles)
+router.post("/upload-files", middleware.isAuthenticatedUser, currentAffairsController.uploadFiles)
 
 // Export the express.Router() instance to be used by server.ts
 export const CurrentAffairsRoute: Router = router;

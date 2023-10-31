@@ -18,11 +18,13 @@ export class CurrentAffairsController {
 
   public create = async (req: any, res: Response) => {
     try {
+      console.log(req.body);
       req.body.id = Utils.generateUUID();
       const image = req.files.image;
       if (image) {
         req.body.attachment = Media.uploadImage(image, FileTypes.CURRENT_AFFAIRS)
       }
+      console.log(req.body);
       await this.currentAffairsUtils.create(req.body);
       const currentAffairs = await this.currentAffairsUtils.getById(
         req.body.id
@@ -35,6 +37,7 @@ export class CurrentAffairsController {
       );
       return res.status(response.code).json(response);
     } catch (err) {
+      console.log(err);
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")
@@ -140,7 +143,7 @@ export class CurrentAffairsController {
   public update = async (req: any, res: Response) => {
     try {
       const currentAffairId = req.params.id;
-      const image = req.files.file;
+      const image = req.files.image;
       const currentAffairDetails: any = {
         title: req.body.title,
         content: req.body.content,

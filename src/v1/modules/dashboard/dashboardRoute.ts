@@ -11,7 +11,7 @@ const dashboardController = new DashboardController();
 const middleware = new Middleware();
 
 // dashboard
-router.get("/total-data", middleware.isAuthenticatedAdmin, dashboardController.getTotalData);
+router.get("/total-data", middleware.isAuthenticated, dashboardController.getTotalData);
 
 // Export the express.Router() instance to be used by server.ts
 export const DashboardRoute: Router = router;

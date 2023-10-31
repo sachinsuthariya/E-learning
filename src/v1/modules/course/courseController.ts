@@ -15,8 +15,8 @@ export class CourseController {
   public create = async (req: any, res: Response) => {
     try {
       req.body.id = Utils.generateUUID();
-      console.log(req);
-      const image = req.files.file;
+      console.log(req.body);
+      const image = req.files.image;
       if (image) {
         req.body.attachment = Media.uploadImage(image, FileTypes.COURSES)
       }

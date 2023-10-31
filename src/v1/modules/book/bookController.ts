@@ -14,11 +14,13 @@ export class BookController {
 
   public create = async (req: any, res: Response) => {
     try {
+      console.log(req.body);
       req.body.id = Utils.generateUUID();
       const image = req.files.image;
       if (image) {
         req.body.attachment = Media.uploadImage(image, FileTypes.BOOKS)
       }
+      console.log(req.body);
       await this.bookUtils.create(req.body);
       const book = await this.bookUtils.getById(req.body.id);
       const response = ResponseBuilder.genSuccessResponse(
@@ -28,6 +30,7 @@ export class BookController {
       );
       return res.status(response.code).json(response);
     } catch (err) {
+      console.log(err);
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")
@@ -93,6 +96,7 @@ export class BookController {
       );
       return res.status(response.code).json(response);
     } catch (err) {
+      console.log(err);
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")
@@ -129,15 +133,14 @@ export class BookController {
   };
 
   public update = async (req: any, res: Response) => {
+    console.log(req.body);
     try {
       console.log(req.body);
       const bookId = req.params.id;
-      const image = req.files.attachment;
+      const image = req.files.image;
       const bookDetails: any = {
         title: req.body.title,
         description: req.body.description,
-        // category_id: req.body.category_id,
-        // isIncludesLiveClass: req.body.isIncludesLiveClass,
         isFree: req.body.isFree,
         price: req.body.price,
         payment_url: req.body.payment_url,
@@ -148,7 +151,7 @@ export class BookController {
         bookDetails.attachment = Media.uploadImage(image, FileTypes.BOOKS)
         await this.bookUtils.deleteImage(bookId)
       }
-
+      console.log(bookDetails);
       const updateBook = await this.bookUtils.updateById(bookId, bookDetails);
 
       if (!updateBook || !updateBook.affectedRows) {

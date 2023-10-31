@@ -12,12 +12,12 @@ const bookController = new BookController();
 const middleware = new Middleware();
 
 // book routes
-router.post("/", v.validate(BookModel), bookController.create); // for internal use only
-router.put("/:id", v.validate(BookModel), bookController.update);
-router.put("/status/:id", bookController.updateStatus);
-router.delete("/:id", bookController.delete);
-router.patch("/:id", bookController.restore);
-router.get("/:id", bookController.getById);
+router.post("/", middleware.isAuthenticated, v.validate(BookModel), bookController.create); // for internal use only
+router.put("/:id", middleware.isAuthenticated, v.validate(BookModel), bookController.update);
+router.put("/status/:id", middleware.isAuthenticated, bookController.updateStatus);
+router.delete("/:id", middleware.isAuthenticated, bookController.delete);
+router.patch("/:id", middleware.isAuthenticated, bookController.restore);
+router.get("/:id", middleware.isAuthenticatedUser, bookController.getById);
 router.get("/", bookController.allBooks); // all Books
 
 // Export the express.Router() instance to be used by server.ts

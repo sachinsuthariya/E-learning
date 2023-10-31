@@ -2,7 +2,7 @@ import bcryptjs = require("bcryptjs");
 import { Request, Response } from "express";
 import { Constants } from "../../../config/constants";
 import { AuthUtils } from "./authUtils";
-import { UserStatus } from "../../../config/enums";
+import { UserRole, UserStatus } from "../../../config/enums";
 
 export class AuthMiddleware {
     private authUtils: AuthUtils = new AuthUtils();
