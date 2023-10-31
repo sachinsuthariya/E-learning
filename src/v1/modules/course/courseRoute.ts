@@ -12,12 +12,12 @@ const courseController = new CourseController();
 const middleware = new Middleware();
 
 // course routes
-router.post("/", v.validate(CourseModel), courseController.create); // for internal use only
-router.put("/:id", v.validate(CourseModel), courseController.update);
-router.put("/status/:id", courseController.updateStatus);
-router.delete("/:id", courseController.delete);
-router.patch("/:id", courseController.restore);
-router.get("/:id", courseController.getById);
+router.post("/", middleware.isAuthenticated, v.validate(CourseModel), courseController.create); // for internal use only
+router.put("/:id", middleware.isAuthenticated, v.validate(CourseModel), courseController.update);
+router.put("/status/:id", middleware.isAuthenticated, courseController.updateStatus);
+router.delete("/:id", middleware.isAuthenticated, courseController.delete);
+router.patch("/:id", middleware.isAuthenticated, courseController.restore);
+router.get("/:id", middleware.isAuthenticatedUser, courseController.getById);
 router.get("/", courseController.allCourses); // all Courses
 
 // Export the express.Router() instance to be used by server.ts

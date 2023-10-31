@@ -35,8 +35,8 @@ export class Routes {
     const router = express.Router();
     const middleware = new Middleware();
     router.use("/auth", AuthRoute);
-    router.use("/user", UserRoute);
-    router.use("/dashboard", DashboardRoute);
+    router.use("/user",  UserRoute);
+    router.use("/dashboard", middleware.isAuthenticated, DashboardRoute);
     router.use("/current-affairs", CurrentAffairsRoute);
     router.use("/course-categories", CourseCategoriesRoute);
     router.use("/course", CourseRoute);

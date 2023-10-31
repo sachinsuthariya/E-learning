@@ -11,12 +11,12 @@ const userController = new UserController();
 const middleware = new Middleware();
 
 // User Routes
-router.post("/", v.validate(UserModel), userController.createUser); // Create User
-router.put("/:id", userController.updateUser); // Update User
-router.put("/status/:id", userController.updateUserStatus); // Update User Status
-router.delete("/:id", userController.deleteUser); // Delete User
-router.patch("/:id", userController.restoreUser); // Restore User
-router.get("/:id", userController.getUserById); // Get User by ID
-router.get("/", userController.getAllUsers); // Get All Users
+router.post("/", middleware.isAuthenticated, v.validate(UserModel), userController.createUser); // Create User
+router.put("/:id", middleware.isAuthenticated, userController.updateUser); // Update User
+router.put("/status/:id", middleware.isAuthenticated, userController.updateUserStatus); // Update User Status
+router.delete("/:id", middleware.isAuthenticated, userController.deleteUser); // Delete User
+router.patch("/:id", middleware.isAuthenticated, userController.restoreUser); // Restore User
+router.get("/:id", middleware.isAuthenticatedUser, userController.getUserById); // Get User by ID
+router.get("/", middleware.isAuthenticated, userController.getAllUsers); // Get All Users
 
 export const UserRoute: Router = router;

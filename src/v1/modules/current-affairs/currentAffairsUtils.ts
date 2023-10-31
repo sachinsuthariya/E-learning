@@ -56,8 +56,8 @@ export class CurrentAffairsUtils {
         "updated_at",
         "deleted_at",
       ],
-      "status!=?",
-      ["deleted"]
+      "status NOT IN (?, ?)",
+      ["deleted","draft"]
     );
 
     currentAffairs.map((currentAffair) => {

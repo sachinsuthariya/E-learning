@@ -433,12 +433,23 @@ export class ExamUtils {
 
     // return getAllExams;
     const userExams = [];
+    const userExamResults = await My.findAll(Tables.EXAM_RESULT, [
+      "examId",
+      "userId",
+      "score",
+    ]);
 
     getAllExams.forEach((exam) => {
       try {
         const userIdArray = JSON.parse(exam.user_id);
         if (Array.isArray(userIdArray)) {
           if (userIdArray.includes(loginUserId)) {
+            // Find the corresponding exam result
+            const examResult = userExamResults.find(result => result.examId === exam.id && result.userId === loginUserId);
+            if (examResult) {
+              // Associate the exam result with the exam
+              exam.score = examResult.score;
+            }
             // Include the exam in the result only if loginUserId is enrolled
             userExams.push(exam);
           }
@@ -453,7 +464,65 @@ export class ExamUtils {
 
     return userExams;
   };
+   /**
+   * Get User by ID
+   * @param userId
+   * @returns
+   */
+   public getUserById = async (userId: string) =>
+   await My.first(
+     Tables.USER,
+     ["id", "firstName", "lastName", "email", "mobile", "role", "dob", "city", "status"],
+     "id=?",
+     [userId]
+   );
 
+  public examEnrolledStudents = async (examId: string) => {
+    const exam = await My.first(Tables.EXAM, ["id", "user_id","title","total_marks","exam_date","start_time"], `id = ?`, [examId]);
+  
+    if (!exam) {
+      throw new Error(`Exam with ID ${examId} not found.`);
+    }
+    if(exam.user_id !== null)
+    {
+      const userIdArray = JSON.parse(exam.user_id);
+      
+      if (!Array.isArray(userIdArray)) {
+        throw new Error(`Invalid user_id format for exam ${examId}`);
+      }
+      
+      if (userIdArray.length === 0) {
+        throw new Error(`No students are enrolled for exam ${examId}.`);
+      }
+      const enrolledStudents = [];
+  
+    for (const userId of userIdArray) {
+      const examResult = await My.first(Tables.EXAM_RESULT, ["score"], `examId = ? AND userId = ?`, [exam.id, userId]);
+  
+      if (examResult) {
+        const userDetails = await this.getUserById(userId);
+        // console.log(userDetails);
+        if (userDetails) {
+          const studentData = {
+            user: userDetails,
+            examDate: exam.exam_date,
+            startTime:exam.start_time,
+            totalMarks: exam.total_marks,
+            score: examResult.score,
+          };
+  
+          enrolledStudents.push(studentData);
+        } else {
+          console.log(`User details not found for user ${userId} in exam ${examId}`);
+        }
+      }
+    }
+        return {enrolledStudents:enrolledStudents,exam:exam.title};
+    } else {
+        return {enrolledStudents:null,exam:exam.title};
+    }
+  
+  };
   public deleteImage = async (examId: string) => {
     const exam = await My.first(Tables.EXAM, ["id", "attachment"], "id = ?", [
       examId,
