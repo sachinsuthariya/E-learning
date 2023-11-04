@@ -160,7 +160,7 @@ export class ExamUtils {
       INNER JOIN ${Tables.MCQ_OPTION} AS mcq ON q.id = mcq.questionId
       LEFT JOIN ${Tables.STUDENT_EXAM_SUBMISSION} AS sub ON sub.questionId = q.id AND sub.userId = '${userId}'`;
 
-    const condition = `q.examId = '${examId}'`;
+    const condition = `q.examId = '${examId}' AND q.status != 'deleted'`;
     const fields = `q.id as id, q.question, q.questionType, q.points, q.nagativePoints, q.examId, TIME(e.start_time) AS startTime, TIME(e.end_time) AS endTime, e.duration_minutes AS duration, sub.mcqId as selectedMCQ,
       GROUP_CONCAT(
         JSON_OBJECT(
@@ -174,6 +174,26 @@ export class ExamUtils {
     const query = `SELECT ${fields} FROM ${model} WHERE ${condition} GROUP BY ${group}`;
     return await My.query(query);
   };
+  // public getExamQuestions = async (examId: string, userId: string) => {
+  //   const model = `${Tables.QUESTION} AS q
+  //     INNER JOIN ${Tables.EXAM} AS e ON e.id = q.examId
+  //     INNER JOIN ${Tables.MCQ_OPTION} AS mcq ON q.id = mcq.questionId
+  //     LEFT JOIN ${Tables.STUDENT_EXAM_SUBMISSION} AS sub ON sub.questionId = q.id AND sub.userId = '${userId}'`;
+
+  //   const condition = `q.examId = '${examId}'`;
+  //   const fields = `q.id as id, q.question, q.questionType, q.points, q.nagativePoints, q.examId, TIME(e.start_time) AS startTime, TIME(e.end_time) AS endTime, e.duration_minutes AS duration, sub.mcqId as selectedMCQ,
+  //     GROUP_CONCAT(
+  //       JSON_OBJECT(
+  //           'id', mcq.id,
+  //           'optionText', mcq.optionText
+  //       )
+  //       ORDER BY mcq.id
+  //   ) AS mcqOptions`;
+  //   const group = `q.id, q.question, q.questionType, q.points, q.nagativePoints, sub.id`;
+
+  //   const query = `SELECT ${fields} FROM ${model} WHERE ${condition} GROUP BY ${group}`;
+  //   return await My.query(query);
+  // };
 
   public submitAnswer = async (
     examId: string,
