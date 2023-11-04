@@ -259,6 +259,35 @@ export class ExamController {
       return res.status(response.error.code).json(response);
     }
   };
+  public getExamQuestionsAdmin = async (req: any, res: Response) => {
+    try {
+      const examId = req.params.id;
+      const userId = req.user && req.user.id ? String(req.user.id) : "1";
+
+      const questions = await this.examUtils.getExamQuestionsAdmin(examId, userId);
+      for (const question of questions) {
+        if (question.mcqOptions) {
+          const mcqOptions = "[" + question.mcqOptions + "]";
+          question.mcqOptions = JSON.parse(mcqOptions);
+        }
+      }
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        questions
+      );
+      console.log(response);
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
 
   public submitAnswer = async (req: any, res: Response) => {
     try {
