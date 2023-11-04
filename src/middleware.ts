@@ -86,7 +86,30 @@ export class Middleware {
       return res.status(response.error.code).json(response);
     }
   }
-
+  public isAuthenticatedAll = async (req: any, res: Response, next: () => void) => {
+    try {
+      const token = req.headers["x-auth-token"] || req.headers["authentication"] || req.headers["authorization"];
+      if (!token) {
+        const response = ResponseBuilder.genErrorResponse(Constants.UNAUTHORIZED_CODE, req.t("UNAUTHORIZED"));
+        return res.status(response.error.code).json(response);
+      }
+      const userData = Jwt.decodeAuthToken(token);
+      if (!userData.id) {
+        const response = ResponseBuilder.genErrorResponse(Constants.UNAUTHORIZED_CODE, req.t("UNAUTHORIZED"));
+        return res.status(response.error.code).json(response);
+      }
+      req.user = await this.authUtils.getUserById(userData.id);
+      if (req.user.id == userData.id && [UserRole.ADMIN, UserRole.PROFESSOR,, UserRole.STUDENT].includes(req.user.role) && req.user.email == userData.email && req.user.mobile && userData.mobile ) {
+        next();
+      } else {
+        const response = ResponseBuilder.genErrorResponse(Constants.UNAUTHORIZED_CODE, req.t("UNAUTHORIZED"));
+        return res.status(response.error.code).json(response);
+      }
+    } catch (err) {
+      const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+      return res.status(response.error.code).json(response);
+    }
+  }
   public isAuthenticatedUser = async (req: any, res: Response, next: () => void) => {
     try {
       const token = req.headers["x-auth-token"] || req.headers["authentication"] || req.headers["authorization"];

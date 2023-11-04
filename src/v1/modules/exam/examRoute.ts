@@ -27,6 +27,7 @@ router.get("/enrolled-students/:id", middleware.isAuthenticated, examController.
 
 // get exam question
 router.get("/:id/questions", middleware.isAuthenticatedStudent, examController.getExamQuestions)
+router.get("/questions/:id", middleware.isAuthenticatedAll, examController.getExamQuestionsAdmin)
 router.post("/:id/:questionId/answer", middleware.isAuthenticatedStudent, examController.submitAnswer)
 
 //get exam result 
