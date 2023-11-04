@@ -14,7 +14,7 @@ const middleware = new Middleware();
 // exam routes
 router.post("/", middleware.isAuthenticated, v.validate(QuestionModel), questionController.create); 
 router.put("/:id", middleware.isAuthenticated, v.validate(QuestionModel), questionController.update);  // TODO: need improvement
-// router.delete("/:id", questionController.delete);
+router.delete("/:id", questionController.deleteQuestion);
 router.get("/:id", middleware.isAuthenticatedUser, questionController.getById);
 router.get("/", middleware.isAuthenticatedUser, questionController.allQuestions); // TODO: need improvement
 

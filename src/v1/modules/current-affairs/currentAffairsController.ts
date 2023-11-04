@@ -77,6 +77,7 @@ export class CurrentAffairsController {
       );
       return res.status(response.code).json(response);
     } catch (err) {
+      console.log(err);
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")

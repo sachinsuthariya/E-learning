@@ -47,23 +47,34 @@ export class QuestionUtils {
     };
   };
 
+  // public getAllQuestions = async () => {
+  //   const questionsWithExamNames = await My.findAll(Tables.QUESTION, [
+  //     "id",
+  //     "examId",
+  //     "question",
+  //     "questionType",
+  //     "points",
+  //     "nagativePoints",
+  //   ]);
+  
+  //   // Now, let's fetch the related exam names for each question
+  //   for (const question of questionsWithExamNames) {
+  //     const exam = await My.first(Tables.EXAM, ["title"], "id = ?", [question.examId]);
+  //     question.examName = exam ? exam.title : null;
+  //   }
+  
+  //   return questionsWithExamNames;
+  // };
   public getAllQuestions = async () => {
-    const questionsWithExamNames = await My.findAll(Tables.QUESTION, [
-      "id",
-      "examId",
-      "question",
-      "questionType",
-      "points",
-      "nagativePoints",
-    ]);
-  
-    // Now, let's fetch the related exam names for each question
-    for (const question of questionsWithExamNames) {
-      const exam = await My.first(Tables.EXAM, ["title"], "id = ?", [question.examId]);
-      question.examName = exam ? exam.title : null;
-    }
-  
-    return questionsWithExamNames;
+      const sql = `
+        SELECT ${Tables.QUESTION}.id, ${Tables.QUESTION}.question, ${Tables.QUESTION}.questionType, ${Tables.QUESTION}.points, ${Tables.QUESTION}.nagativePoints, ${Tables.EXAM}.title AS examName
+        FROM ${Tables.QUESTION}
+        LEFT JOIN ${Tables.EXAM} ON ${Tables.QUESTION}.examId = ${Tables.EXAM}.id
+      `;
+
+      const questionsWithExamNames = await My.query(sql);
+
+      return questionsWithExamNames;
   };
 
   /**
@@ -117,25 +128,29 @@ export class QuestionUtils {
       await Promise.all(updates);
   }
 
-    // public updateMCQOptions = async (mcqOptions: Json[],questionId) => {
-    //   console.log(mcqOptions);
-    //   const updates = mcqOptions.map(async (mcq) => {
-    //     const { id, optionText, isCorrect } = mcq;
-    //     if (id) {
-    //       // Update the existing MCQ option
-    //       await My.update(Tables.MCQ_OPTION, { optionText, isCorrect }, "id=?", [id]);
-    //     } else {
-    //       // Add a new MCQ option
-    //       const newMCQOption = {
-    //           id: Utils.generateUUID(), 
-    //           questionId: questionId,
-    //           optionText,
-    //           isCorrect,
-    //       };
-    //       await My.insert(Tables.MCQ_OPTION, newMCQOption);
-    //     }
-    //   });
-    //   await Promise.all(updates);
-    // }
+  public destroyQuestion = async (questionId: string) => {
+    const currentTimestamp = new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
+
+    // Delete the MCQ options associated with the question
+    await this.deleteMCQOptions(questionId);
+
+    // Delete the question itself
+    const question = await My.update(
+        Tables.QUESTION,
+        { status: "deleted", deleted_at: currentTimestamp },
+        "id=?",
+        [questionId]
+    );
+
+    return question;
+  };
+
+  public deleteMCQOptions = async (questionId: string) => {
+      // Delete MCQ options associated with the question
+      await My.delete(Tables.MCQ_OPTION, "questionId=?", [questionId]);
+  };
     
 }

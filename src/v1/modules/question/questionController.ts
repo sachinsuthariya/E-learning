@@ -62,6 +62,7 @@ export class QuestionController {
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), getAllQuestions);
             return res.status(response.code).json(response);
         } catch (err) {
+            console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
             return res.status(response.error.code).json(response);
         }
@@ -93,6 +94,25 @@ export class QuestionController {
     
             const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), updatedQuestionDetails);
             return res.status(response.code).json(response);
+        } catch (err) {
+            console.log(err);
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+            return res.status(response.error.code).json(response);
+        }
+    }
+    public deleteQuestion = async (req: any, res: Response) => {
+        try {
+            const questionId = req.params.id; // Assuming questionId is in the URL parameter
+    
+            const success = await this.questionUtils.destroyQuestion(questionId);
+    
+            if (success) {
+                const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("QUESTION_DELETED"));
+                return res.status(response.code).json(response);
+            } else {
+                const response = ResponseBuilder.genErrorResponse(Constants.NOT_FOUND_CODE, req.t("QUESTION_NOT_FOUND"));
+                return res.status(response.error.code).json(response);
+            }
         } catch (err) {
             console.log(err);
             const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
