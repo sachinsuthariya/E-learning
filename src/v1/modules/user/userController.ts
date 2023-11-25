@@ -117,7 +117,7 @@ export class UserController {
                 mobile: req.body.mobile,
                 email: req.body.email,
                 role: req.body.role,
-                // dob: req.body.dob ?? '',
+                // dob: req.body.dob ?? '', 
                 // city: req.body.city ?? '',
                 // upscAttempts: req.body.upscAttempts,
                 // upscTargetYear: req.body.upscTargetYear,

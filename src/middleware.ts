@@ -89,11 +89,13 @@ export class Middleware {
   public isAuthenticatedAll = async (req: any, res: Response, next: () => void) => {
     try {
       const token = req.headers["x-auth-token"] || req.headers["authentication"] || req.headers["authorization"];
+      // console.log(token);
       if (!token) {
         const response = ResponseBuilder.genErrorResponse(Constants.UNAUTHORIZED_CODE, req.t("UNAUTHORIZED"));
         return res.status(response.error.code).json(response);
       }
       const userData = Jwt.decodeAuthToken(token);
+      // console.log(userData);
       if (!userData.id) {
         const response = ResponseBuilder.genErrorResponse(Constants.UNAUTHORIZED_CODE, req.t("UNAUTHORIZED"));
         return res.status(response.error.code).json(response);
@@ -138,7 +140,7 @@ export class Middleware {
   public isAuthenticatedStudent = async (req: any, res: Response, next: () => void) => {
     try {
       const token = req.headers["x-auth-token"] || req.headers["authentication"] || req.headers["authorization"];
-      console.log(req.headers);
+      // console.log(req.headers);
       if (!token) {
         const response = ResponseBuilder.genErrorResponse(Constants.UNAUTHORIZED_CODE, req.t("UNAUTHORIZED"));
         return res.status(response.error.code).json(response);

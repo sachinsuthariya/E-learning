@@ -18,5 +18,7 @@ export enum UserRole {
     BOOKS = "books",
     CURRENT_AFFAIRS = "current-affairs",
     COURSES = "courses",
-    EXAMS = "exams"
+    EXAMS = "exams",
+    APP_ADVERTISE = "advertisements",
+    APP_UPDATE = "app_updates"
   }

@@ -58,6 +58,7 @@ export class CurrentAffairsController {
       );
       return res.status(response.code).json(response);
     } catch (err) {
+      console.log(err);
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")
@@ -154,7 +155,7 @@ export class CurrentAffairsController {
       if (image) {
         currentAffairDetails.attachment = Media.uploadImage(
           image,
-          FileTypes.COURSES
+          FileTypes.CURRENT_AFFAIRS
         );
         await this.currentAffairsUtils.deleteImage(currentAffairId);
       }

@@ -10,6 +10,8 @@ import { CourseRoute } from "./v1/modules/course/courseRoute";
 import { ExamRoute } from "./v1/modules/exam/examRoute";
 import { QuestionRoute } from "./v1/modules/question/questionRoute";
 import { BookRoute } from "./v1/modules/book/bookRoute"
+import { AppAdvertiseRoute } from "./v1/modules/app-advertise/appAdvertiseRoute";
+import { AppUpdateRoute } from "./v1/modules/app-update/appUpdateRoute";
 
 export class Routes {
   protected basePath: string;
@@ -38,6 +40,8 @@ export class Routes {
     router.use("/user",  UserRoute);
     router.use("/dashboard", middleware.isAuthenticated, DashboardRoute);
     router.use("/current-affairs", CurrentAffairsRoute);
+    router.use("/app-advertise", AppAdvertiseRoute);
+    router.use("/app-update", AppUpdateRoute);
     router.use("/course-categories", CourseCategoriesRoute);
     router.use("/course", CourseRoute);
     router.use("/exam", ExamRoute);

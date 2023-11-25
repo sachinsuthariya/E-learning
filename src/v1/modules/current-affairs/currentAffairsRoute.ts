@@ -17,7 +17,7 @@ router.put("/:id", middleware.isAuthenticated, v.validate(CurrentAffairsModel), 
 router.put("/status/:id", middleware.isAuthenticated, currentAffairsController.updateStatus);
 router.delete("/:id", middleware.isAuthenticated, currentAffairsController.delete);
 router.patch("/:id", middleware.isAuthenticated, currentAffairsController.restore);
-router.get("/:id", middleware.isAuthenticatedUser, currentAffairsController.getById);
+router.get("/:id", currentAffairsController.getById);
 router.get("/", currentAffairsController.allCurrentAffairs); // all current affairs
 router.post("/upload-files", middleware.isAuthenticatedUser, currentAffairsController.uploadFiles)
 
