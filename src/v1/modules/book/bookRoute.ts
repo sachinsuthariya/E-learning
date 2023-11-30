@@ -17,6 +17,13 @@ router.put("/:id", middleware.isAuthenticated, v.validate(BookModel), bookContro
 router.put("/status/:id", middleware.isAuthenticated, bookController.updateStatus);
 router.delete("/:id", middleware.isAuthenticated, bookController.delete);
 router.patch("/:id", middleware.isAuthenticated, bookController.restore);
+
+// book enrollment
+router.put("/:id/enroll-book", middleware.isAuthenticated, bookController.enrollBookUser);
+router.get("/enrolled-students/:id", middleware.isAuthenticated, bookController.enrolledStudentsCheckAdmin);
+router.get("/enrolled", middleware.isAuthenticatedStudent, bookController.enrolledBooks);
+router.get("/enrolled-books/:id", middleware.isAuthenticated, bookController.enrolledBooksCheckAdmin);
+
 router.get("/:id", bookController.getById);
 router.get("/", bookController.allBooks); // all Books
 

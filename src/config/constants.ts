@@ -46,8 +46,8 @@ export class Constants {
   };
 
   public static readonly DEFAULT_IMAGE = {
-    url: `https://console.nocat.tech/img/noImage.jpg`,
-    thumbnail: `https://console.nocat.tech/img/noImage.jpg`,
+    url: `https://console.spiderai.in/img/noImage.jpg`,
+    thumbnail: `https://console.spiderai.in/img/noImage.jpg`,
   };
 
   public static readonly IMAGE_PATH = "/images/";

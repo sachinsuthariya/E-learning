@@ -8,25 +8,32 @@ import { CourseUtils } from "./courseUtils";
 import { Utils } from "../../../helpers/utils";
 import { Media } from "../../../helpers/media";
 import { FileTypes } from "../../../config/enums";
-import { google, youtube_v3 } from "googleapis";
-import { OAuth2Client } from "google-auth-library";
+// import { google, youtube_v3 } from "googleapis";
+// import { OAuth2Client } from "google-auth-library";
+import axios from 'axios';
 
 export class CourseController {
   private courseUtils: CourseUtils = new CourseUtils();
 
-  private apiKey = "AIzaSyClfSna-etdQmF5C_fkKTT_FVvMGhy1tRU";
+  private clientId = "0hqmaJlGTVKG3M47T7FlnQ"
+  private accountId = "xQTYRngYSmG-tkl4gGxKSw"
+  private clientSecret = "8FAia3RDhDRoMVkFH4fXUsa7cM4daUWu"
+  private auth_token_url = "https://zoom.us/oauth/token"
+  private api_base_url = "https://api.zoom.us/v2"
 
-  private oAuth2Client = new OAuth2Client({
-    clientId:
-      "975740311220-tb54qtq92to0sf20u3kfpos4e20k02e7.apps.googleusercontent.com",
-    clientSecret: "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",
-    redirectUri: "http://localhost:3000/api/v1/course/startLiveStream",
-  });
+  // private apiKey = "AIzaSyClfSna-etdQmF5C_fkKTT_FVvMGhy1tRU";
 
-  private youtube = google.youtube({
-    version: "v3",
-    auth: this.apiKey,
-  });
+  // private oAuth2Client = new OAuth2Client({
+  //   clientId:
+  //     "975740311220-tb54qtq92to0sf20u3kfpos4e20k02e7.apps.googleusercontent.com",
+  //   clientSecret: "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",
+  //   redirectUri: "http://localhost:3000/api/v1/course/startLiveStream",
+  // });
+
+  // private youtube = google.youtube({
+  //   version: "v3",
+  //   auth: this.apiKey,
+  // });
 
   private authTokens: any = null;
 
@@ -257,208 +264,199 @@ export class CourseController {
       return res.status(response.error.code).json(response);
     }
   };
-  public authLiveStream = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
+  // public authLiveStream = async (
+  //   req: Request,
+  //   res: Response
+  // ): Promise<void> => {
+  //   try {
+  //     const courseId = req.params.id;
+  //     const authUrl = this.oAuth2Client.generateAuthUrl({
+  //       access_type: "offline",
+  //       scope: ["https://www.googleapis.com/auth/youtube"],
+  //     });
+  //     // console.log('Authorize this app by visiting this URL:', [authUrl]);
+  //     res.json({ success: true, authUrl, courseId });
+  //   } catch (error) {
+  //     console.error("Error starting live stream:", error.message);
+  //     res.status(500).json({ error: "Internal Server Error" });
+  //   }
+  // };
+  public createSignature = async (req: any, res: Response)=> {
+      try {
+        
+        const { meetingNumber, role } = req.body;
+        console.log(req.body);
+        
+        const timestamp = new Date().getTime();
+        const message = Buffer.from(this.clientId + meetingNumber + timestamp + role).toString('base64');
+        const hash = require('crypto').createHmac('sha256', this.clientSecret).update(message).digest('base64');
+    
+        const signature = Buffer.from(`${this.clientId}.${meetingNumber}.${timestamp}.${role}.${hash}`).toString('base64');
+        console.log(signature);
+        const response = ResponseBuilder.genSuccessResponse(
+          Constants.SUCCESS_CODE,
+          req.t("SUCCESS"),
+          signature
+        );
+        return res.status(response.code).json(signature);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    };
+  // public createMeeting = async (topic, duration, start_time,req: any, res: Response)=> {
+    public createMeeting = async (req: any, res: Response)=> {
+      // return;
+    try {
+      const title = req.body.title;
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://zoom.us/oauth/token?grant_type=account_credentials&account_id='+this.accountId,
+        headers: {
+            'Authorization': 'Basic MGhxbWFKbEdUVktHM000N1Q3RmxuUTo4RkFpYTNSRGhEUm9NVmtGSDRmWFVzYTdjTTRkYVVXdQ=='
+          }
+      };
+        let authResponse
+        await axios.request(config)
+            .then((response) => {
+              authResponse = response.data;
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+
+        const access_token = authResponse.access_token;
+        // console.log(access_token);
+
+        const headers = {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json'
+        }
+
+        let data = JSON.stringify({
+            "topic": title,
+            "type": 2,
+            "duration": 40,
+            "settings": {
+                "join_before_host": true,
+                "waiting_room": true
+            }
+        });
+        const meetingResponse = await axios.post(`${this.api_base_url}/users/me/meetings`, data, { headers });
+
+        if (meetingResponse.status !== 201) {
+            // return 'Unable to generate meeting link';
+        }
+
+        const response_data = meetingResponse.data;
+        // console.log(response_data);
+        const content = {
+            meeting_id: response_data.id,
+            meeting_url: response_data.join_url,
+            meetingTime: response_data.start_time,
+            purpose: response_data.topic,
+            duration: response_data.duration,
+            message: 'Success',
+            status: 1,
+        };
+        const response = ResponseBuilder.genSuccessResponse(
+          Constants.SUCCESS_CODE,
+          req.t("SUCCESS"),
+          response_data
+        );
+        return res.status(response.code).json(response_data);
+
+    }catch (e) {
+      console.error("Error occurred:", e.message);
+      console.error("Stack trace:", e.stack);
+    }
+}
+
+  public enrolledCourses = async (req: any, res: Response) => {
+    try {
+      const loginUserId = req.user && req.user.id ? req.user.id : null;
+
+      const enrolledCourses = await this.courseUtils.userEnrolledCourses(loginUserId);
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enrolledCourses
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public enrolledCoursesCheckAdmin = async (req: any, res: Response) => {
+    try {
+      const userId = req.params.id;
+      const enrolledCourses = await this.courseUtils.userEnrolledCourses(userId);
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enrolledCourses
+      );
+      // console.log(response);
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public enrollCourseUser = async (req: any, res: Response) => {
+    try {
+      // console.log(req);
+      // return;
+      const courseId = req.params.id;
+      const studentId = req.body.student_id;
+      // console.log("user Id :", req.user);
+      const enroll = await this.courseUtils.studentEnrollment(courseId, studentId);
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enroll
+      );
+      // console.log(response);
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  }
+  public enrolledStudentsCheckAdmin = async (req: any, res: Response) => {
+    // console.log(req.pa)
     try {
       const courseId = req.params.id;
-      const authUrl = this.oAuth2Client.generateAuthUrl({
-        access_type: "offline",
-        scope: ["https://www.googleapis.com/auth/youtube"],
-      });
-      // console.log('Authorize this app by visiting this URL:', [authUrl]);
-      res.json({ success: true, authUrl, courseId });
-    } catch (error) {
-      console.error("Error starting live stream:", error.message);
-      res.status(500).json({ error: "Internal Server Error" });
+      // return loginUserId;
+      const enrolledStudents = await this.courseUtils.courseEnrolledStudents(courseId);
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enrolledStudents
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
     }
   };
-
-  public startLiveStream = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
-    try {
-      const code = req.query.code as string;
-      const { tokens } = await this.oAuth2Client.getToken(code);
-      this.oAuth2Client.setCredentials(tokens);
-      this.authTokens = tokens;
-      // console.log('YouTube API Client Credentials:', this.oAuth2Client.credentials);
-      // console.log(this.authTokens);
-      // return;
-      const courseId = "1d557557-e890-4444-ac6b-20a983567aa9";
-
-      const broadcastId = await this.createLiveBroadcast(courseId);
-      const streamId = await this.createLiveStream(courseId);
-      await this.bindBroadcastToStream(broadcastId, streamId);
-      await this.startLiveVideo(broadcastId);
-
-      res.json({ success: true, broadcastId, streamId });
-    } catch (error) {
-      console.error("Error starting live stream:", error.message);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-
-  private async createLiveBroadcast(courseId: string): Promise<string> {
-    try {
-      this.oAuth2Client.setCredentials(this.authTokens);
-
-      // Format the scheduled start time to ISO 8601 format
-      const scheduledStartTime = new Date();
-      scheduledStartTime.setMinutes(scheduledStartTime.getMinutes() + 10);
-      const formattedStartTime = scheduledStartTime.toISOString();
-
-      // Get the YouTube API client with OAuth tokens
-      const youtubeWithAuth = google.youtube({
-        version: "v3",
-        auth: this.oAuth2Client as any,
-      });
-
-      // Make the API request to create a live broadcast
-      const response = await youtubeWithAuth.liveBroadcasts.insert({
-        part: ["snippet,status"],
-        requestBody: {
-          snippet: {
-            title: `Live Stream for Course ${courseId}`,
-            description: "Description of the live stream",
-            scheduledStartTime: formattedStartTime,
-          },
-          status: {
-            privacyStatus: "public",
-          },
-        },
-      });
-
-      return response.data.id;
-    } catch (error) {
-      console.error("Error creating live broadcast:", error.message);
-      throw error;
-    }
-  }
-
-  private async createLiveStream(courseId: string): Promise<string> {
-    try {
-      this.oAuth2Client.setCredentials(this.authTokens);
-
-      // Get the YouTube API client with OAuth tokens
-      const youtubeWithAuth = google.youtube({
-        version: "v3",
-        auth: this.oAuth2Client as any,
-      });
-
-      // Make the API request to create a live stream
-      const response = await youtubeWithAuth.liveStreams.insert({
-        part: ["snippet,cdn"],
-        requestBody: {
-          snippet: {
-            title: `Live Stream for Course ${courseId}`,
-            description: "Description of the live stream",
-          },
-          cdn: {
-            frameRate: "30fps",
-            ingestionType: "rtmp",
-            resolution: "720p",
-          },
-        },
-      });
-
-      return response.data.id;
-    } catch (error) {
-      console.error("Error creating live stream:", error.message);
-      throw error;
-    }
-  }
-
-  private async bindBroadcastToStream(
-    broadcastId: string,
-    streamId: string
-  ): Promise<void> {
-    try {
-      this.oAuth2Client.setCredentials(this.authTokens);
-      const youtubeWithAuth = google.youtube({
-        version: "v3",
-        auth: this.oAuth2Client as any,
-      });
-      const bindRequest = {
-        // auth: this.oAuth2Client,
-        id: broadcastId,
-        part: ["id,contentDetails"],
-        requestBody: {
-          streamId: streamId,
-        },
-      };
-
-      await youtubeWithAuth.liveBroadcasts.bind(bindRequest);
-    } catch (error) {
-      console.error("Error binding broadcast to stream:", error.message);
-      throw error;
-    }
-  }
-
-  private async startLiveVideo(broadcastId: string): Promise<void> {
-    try {
-      this.oAuth2Client.setCredentials(this.authTokens);
-      const youtubeWithAuth = google.youtube({
-        version: "v3",
-        auth: this.oAuth2Client as any,
-      });
-  
-      const response = await youtubeWithAuth.liveBroadcasts.list({
-        part: "snippet,contentDetails,status",
-        id: broadcastId,
-      });
-  
-      const liveBroadcast = response.data.items[0];
-  
-      console.log('this is live broadcast status ===> ', liveBroadcast.status);
-      console.log('response data ===>', response);
-  
-      if (liveBroadcast && liveBroadcast.status && liveBroadcast.status.lifeCycleStatus === "live") {
-        console.log("Stream is active and ready for transition.");
-      } else {
-        console.log("Stream is not active or ready for transition. Recreating with 'webcam' type.");
-  
-        // Recreate the live stream with "webcam" type and privacy status
-        const recreatedResponse = await youtubeWithAuth.liveBroadcasts.insert({
-          part: "snippet,contentDetails,status",
-          resource: {
-            snippet: {
-              title: "Your Stream Title",
-              description: "WebCam Stream", // Indicate that this is a webcam stream
-              scheduledStartTime: new Date().toISOString(), // Set the start time to now
-            },
-            contentDetails: {
-              monitorStream: {
-                enableMonitorStream: true,
-                broadcastStreamDelayMs: 0,
-              },
-              enableDvr: true,
-              enableContentEncryption: true,
-              enableEmbed: true,
-              enableLowLatency: true,
-              enableAutoStart: true, // Enable auto-start
-              enableAutoStop: false, // Optional: Set to false if you don't want auto-stop
-            },
-            status: {
-              privacyStatus: "public", // Set the privacy status (public, private, unlisted)
-            },
-            type: "none", // Set the type to "none" to potentially ensure it uses webcam
-          },
-        });
-  
-        console.log("Recreated live stream with type 'webcam'.");
-        console.log("Recreated Response:", recreatedResponse.data);
-      }
-    } catch (error) {
-      console.error("Error checking/recreating stream status:", error);
-      throw error;
-    }
-  }
-  
-  
-  
-  
-  
 }

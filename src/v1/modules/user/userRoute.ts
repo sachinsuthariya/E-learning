@@ -16,6 +16,7 @@ router.put("/:id", middleware.isAuthenticated, userController.updateUser); // Up
 router.put("/status/:id", middleware.isAuthenticated, userController.updateUserStatus); // Update User Status
 router.delete("/:id", middleware.isAuthenticated, userController.deleteUser); // Delete User
 router.patch("/:id", middleware.isAuthenticated, userController.restoreUser); // Restore User
+router.get("/students", middleware.isAuthenticated, userController.getAllStudents); // Get All Students
 router.get("/:id", middleware.isAuthenticatedUser, userController.getUserById); // Get User by ID
 router.get("/", middleware.isAuthenticated, userController.getAllUsers); // Get All Users
 
