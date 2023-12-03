@@ -36,6 +36,9 @@ export class Routes {
   public path() {
     const router = express.Router();
     const middleware = new Middleware();
+    router.get("/", (req, res) => {
+      return res.send("Welcome to MissionIASPraajasv")
+    });
     router.use("/auth", AuthRoute);
     router.use("/user",  UserRoute);
     router.use("/dashboard", middleware.isAuthenticated, DashboardRoute);
