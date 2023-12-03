@@ -88,7 +88,8 @@
     "trim-request": "^1.0.6",
     "ts-node-dev": "^1.0.0-pre.32",
     "uuid": "^9.0.1",
-    "winston": "^3.1.0"
+    "winston": "^3.1.0",
+    "jsrsasign": "^10.5.25"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

@@ -20,7 +20,8 @@ export class CourseController {
   private clientSecret = "8FAia3RDhDRoMVkFH4fXUsa7cM4daUWu"
   private auth_token_url = "https://zoom.us/oauth/token"
   private api_base_url = "https://api.zoom.us/v2"
-
+  private meetingId = "0oXQ0FacQAGnsPXIVPbmGA"
+  private meetingSecret = "93zH28E6dyZVocg1iNTKv1hOJMSsWMdg"
   // private apiKey = "AIzaSyClfSna-etdQmF5C_fkKTT_FVvMGhy1tRU";
 
   // private oAuth2Client = new OAuth2Client({
@@ -53,6 +54,32 @@ export class CourseController {
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
         course
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public createEnquiry = async (req: any, res: Response) => {
+    try {
+      req.body.id = Utils.generateUUID();
+      const currentTimestamp = new Date()
+                              .toISOString()
+                              .slice(0, 19)
+                              .replace("T", " ");
+      req.body.purchase_date  = currentTimestamp;
+      
+      const enquiry = await this.courseUtils.createEnquiry(req.body);
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enquiry
       );
       return res.status(response.code).json(response);
     } catch (err) {
@@ -283,15 +310,51 @@ export class CourseController {
   // };
   public createSignature = async (req: any, res: Response)=> {
       try {
-        
+        const KJUR = require('jsrsasign');
         const { meetingNumber, role } = req.body;
-        console.log(req.body);
+        const iat = Math.round(new Date().getTime() / 1000) - 30;
+        const exp = iat + 60 * 60 * 2
+      
+        const oHeader = { alg: 'HS256', typ: 'JWT' }
+      
+        const oPayload = {
+          sdkKey: this.meetingId,
+          mn: meetingNumber,
+          role: role,
+          iat: iat,
+          exp: exp,
+          appKey: this.meetingId,
+          tokenExp: iat + 60 * 60 * 2
+        }
+      
+        const sHeader = JSON.stringify(oHeader)
+        const sPayload = JSON.stringify(oPayload)
+        const signature = KJUR.jws.JWS.sign('HS256', sHeader, sPayload, this.meetingSecret)
         
-        const timestamp = new Date().getTime();
-        const message = Buffer.from(this.clientId + meetingNumber + timestamp + role).toString('base64');
-        const hash = require('crypto').createHmac('sha256', this.clientSecret).update(message).digest('base64');
+        // const iat = Math.round(new Date().getTime() / 1000) - 30;
+        // const exp = iat + 60 * 60 * 2
+
+        // const oHeader = { alg: 'HS256', typ: 'JWT' }
+
+        // const oPayload = {
+        //   sdkKey: this.meetingId,
+        //   mn: meetingNumber,
+        //   role: role,
+        //   iat: iat,
+        //   exp: exp,
+        //   appKey: this.meetingId,
+        //   tokenExp: iat + 60 * 60 * 2
+        // }
+
+        // const sHeader = JSON.stringify(oHeader)
+        // const sPayload = JSON.stringify(oPayload)
+        // const signature = KJUR.jws.JWS.sign('HS256', sHeader, sPayload, this.meetingSecret)
+        
+        // const timestamp = new Date().getTime() - 30000;
+        // const message = Buffer.from(this.meetingId + meetingNumber + timestamp + role).toString('base64');
+        // const hash = require('crypto').createHmac('sha256', this.meetingSecret).update(message).digest('base64');
     
-        const signature = Buffer.from(`${this.clientId}.${meetingNumber}.${timestamp}.${role}.${hash}`).toString('base64');
+        // const signature = Buffer.from(`${this.meetingId}.${meetingNumber}.${timestamp}.${role}.${hash}`).toString('base64');
         console.log(signature);
         const response = ResponseBuilder.genSuccessResponse(
           Constants.SUCCESS_CODE,
@@ -340,32 +403,39 @@ export class CourseController {
             "duration": 40,
             "settings": {
                 "join_before_host": true,
-                "waiting_room": true
+                "waiting_room": false
             }
         });
         const meetingResponse = await axios.post(`${this.api_base_url}/users/me/meetings`, data, { headers });
 
         if (meetingResponse.status !== 201) {
-            // return 'Unable to generate meeting link';
+            return 'Unable to generate meeting link';
         }
-
         const response_data = meetingResponse.data;
+        const registrantToken = response_data.join_url.split('?')[1];
+
+        const startUrl = response_data.start_url;
+        const zakToken = new URL(startUrl).searchParams.get('zak');
+
         // console.log(response_data);
         const content = {
-            meeting_id: response_data.id,
+            id: response_data.id,
             meeting_url: response_data.join_url,
             meetingTime: response_data.start_time,
+            password: response_data.password,
             purpose: response_data.topic,
             duration: response_data.duration,
             message: 'Success',
             status: 1,
+            registrantToken: registrantToken,
+            zak: zakToken
         };
         const response = ResponseBuilder.genSuccessResponse(
           Constants.SUCCESS_CODE,
           req.t("SUCCESS"),
-          response_data
+          content
         );
-        return res.status(response.code).json(response_data);
+        return res.status(response.code).json(content);
 
     }catch (e) {
       console.error("Error occurred:", e.message);

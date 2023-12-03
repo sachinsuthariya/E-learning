@@ -38,7 +38,32 @@ export class BookController {
       return res.status(response.error.code).json(response);
     }
   };
+  public createEnquiry = async (req: any, res: Response) => {
+    try {
+      req.body.id = Utils.generateUUID();
+      const currentTimestamp = new Date()
+                              .toISOString()
+                              .slice(0, 19)
+                              .replace("T", " ");
+      req.body.purchase_date  = currentTimestamp;
+      
+      const enquiry = await this.bookUtils.createEnquiry(req.body);
 
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enquiry
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
   public getById = async (req: any, res: Response) => {
     try {
       const id = req.params.id;

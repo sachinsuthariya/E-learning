@@ -24,6 +24,9 @@ router.get("/enrolled-students/:id", middleware.isAuthenticated, bookController.
 router.get("/enrolled", middleware.isAuthenticatedStudent, bookController.enrolledBooks);
 router.get("/enrolled-books/:id", middleware.isAuthenticated, bookController.enrolledBooksCheckAdmin);
 
+//Book enquiry
+router.post("/enquiry-store", middleware.isAuthenticatedStudent, bookController.createEnquiry);
+
 router.get("/:id", bookController.getById);
 router.get("/", bookController.allBooks); // all Books
 

@@ -29,6 +29,12 @@ router.get("/enrolled-students/:id", middleware.isAuthenticated, courseControlle
 router.get("/enrolled", middleware.isAuthenticatedStudent, courseController.enrolledCourses);
 router.get("/enrolled-courses/:id", middleware.isAuthenticated, courseController.enrolledCoursesCheckAdmin);
 
+//course enquiry
+router.post("/enquiry-store", middleware.isAuthenticatedStudent, courseController.createEnquiry);
+
+//course Video
+router.post("/video-store", middleware.isAuthenticated, courseController.create);
+
 router.get("/:id", courseController.getById);
 router.get("/", courseController.allCourses); // all Courses
 

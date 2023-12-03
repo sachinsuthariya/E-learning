@@ -15,6 +15,15 @@ export class CourseUtils {
   public create = (courseDetails: Json) =>
     My.insert(Tables.COURSE, courseDetails);
 
+
+  // Create Course Enquiries
+  public createEnquiry = (enqiryDetails: Json) =>
+  My.insert(Tables.COURSE_ENQUIRY, enqiryDetails);
+  
+  // Create Course Videos
+  public courseVideo = (videoDetails: Json) =>
+  My.insert(Tables.COURSE_VIDEO, videoDetails);
+
   /**
    * Get Course by ID
    * @param courseDetails
@@ -46,6 +55,7 @@ export class CourseUtils {
     course.attachment = Utils.getImagePath(course.attachment);
     return course;
   };
+
   /**
    * Get Course by ID for students
    * @param courseDetails
@@ -287,6 +297,10 @@ export class CourseUtils {
       }
     });
 
+    userCourses.map((course) => {
+      course.attachment = Utils.getImagePath(course.attachment);
+      return course;
+    });
     return userCourses;
   };
   public createZoomMeeting = async (accessToken: string, courseId: string): Promise<any> => {

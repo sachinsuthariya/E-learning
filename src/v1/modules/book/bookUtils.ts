@@ -13,6 +13,11 @@ export class BookUtils {
   // Create Books
   public create = (bookDetails: Json) => My.insert(Tables.BOOK, bookDetails);
 
+
+  // Create Course Enquiries
+  public createEnquiry = (enqiryDetails: Json) =>
+  My.insert(Tables.BOOK_ENQUIRY, enqiryDetails);
+
   /**
    * Get Book by ID
    * @param bookDetails
