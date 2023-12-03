@@ -5,11 +5,18 @@ import { Utils } from "../../../helpers/utils";
 import * as path from "path";
 import * as fs from "fs";
 import { Media } from "../../../helpers/media";
+import { UserUtils } from "../user/userUtils";
 export class BookUtils {
   public sqlUtils: SqlUtils = new SqlUtils();
+  private userUtils: UserUtils = new UserUtils();
 
   // Create Books
   public create = (bookDetails: Json) => My.insert(Tables.BOOK, bookDetails);
+
+
+  // Create Course Enquiries
+  public createEnquiry = (enqiryDetails: Json) =>
+  My.insert(Tables.BOOK_ENQUIRY, enqiryDetails);
 
   /**
    * Get Book by ID
@@ -22,6 +29,30 @@ export class BookUtils {
       [
         "id",
         "title",
+        "description",
+        "isFree",
+        "payment_url",
+        "price",
+        "status",
+        "attachment",
+        "created_at",
+        "updated_at",
+        "deleted_at",
+      ],
+      "id=?",
+      [bookId]
+    );
+    book.attachment = Utils.getImagePath(book.attachment);
+    return book;
+  };
+
+  public getByIdStudent = async (bookId: string) => {
+    const book = await My.first(
+      Tables.BOOK,
+      [
+        "id",
+        "title",
+        "user_id",
         "description",
         "isFree",
         "payment_url",
@@ -122,5 +153,77 @@ export class BookUtils {
       Media.deleteImage(book.attachment);
     }
     return;
+  };
+  public studentEnrollment = async (bookId: string, studentId: string) => {
+    const book = await this.getByIdStudent(bookId);
+    
+    if (!book || !book.user_id) {
+      const updatedExam = await My.update(
+        Tables.BOOK,
+        { user_id: JSON.stringify([studentId]) },
+        "id=?",
+        [bookId]
+      );
+    } else {
+      const existingUserIds = JSON.parse(book.user_id);
+      if (!existingUserIds.includes(studentId)) {
+        existingUserIds.push(studentId);
+
+        const updatedExam = await My.update(
+          Tables.BOOK,
+          { user_id: JSON.stringify(existingUserIds) },
+          "id=?",
+          [bookId]
+        );
+      }
+    }
+    return book;
+  };
+  public bookEnrolledStudents = async (bookId: string) => {
+    const book = await this.getByIdStudent(bookId);
+    const userIds = book.user_id;
+    const students = await this.userUtils.getAllStudents();
+
+    const filteredStudents = students.filter(student => userIds.includes(student.id));
+
+    return [filteredStudents,{"book":book.title}];
+  };
+  public userEnrolledBooks = async (loginUserId: string) => {
+    const getAllBooks = await My.findAll(Tables.BOOK, [
+      "id",
+        "title",
+        "user_id",
+        "description",
+        "isFree",
+        "payment_url",
+        "price",
+        "status",
+        "attachment",
+        "created_at",
+        "updated_at",
+        "deleted_at",
+    ]);
+
+    // return getAllBooks;
+    const userBooks = [];
+
+    getAllBooks.forEach((book) => {
+      // console.log(book);
+      try {
+        const userIdArray = JSON.parse(book.user_id);
+        if (Array.isArray(userIdArray)) {
+          if (userIdArray.includes(loginUserId)) {
+            userBooks.push(book);
+          }
+        } else {
+          console.log(`Invalid user_id format for book ${book.id}`);
+        }
+      } catch (error) {
+        // Handle JSON parsing error, e.g., if the "user_id" is not a valid JSON array
+        console.error(`Error parsing user_id for book ${book.id}:`, error);
+      }
+    });
+
+    return userBooks;
   };
 }

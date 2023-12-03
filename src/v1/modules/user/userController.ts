@@ -72,6 +72,17 @@ export class UserController {
         }
     }
 
+    public getAllStudents = async (req: any, res: Response) => {
+        try {
+            // console.log("students")
+            const allStudents = await this.userUtils.getAllStudents();
+            const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, "All users retrieved successfully", allStudents);
+            return res.status(response.code).json(response);
+        } catch (err) {
+            const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+            return res.status(response.error.code).json(response);
+        }
+    }
     public deleteUser = async (req: any, res: Response) => {
         try {
             const id = req.params.id;
@@ -117,7 +128,7 @@ export class UserController {
                 mobile: req.body.mobile,
                 email: req.body.email,
                 role: req.body.role,
-                // dob: req.body.dob ?? '',
+                // dob: req.body.dob ?? '', 
                 // city: req.body.city ?? '',
                 // upscAttempts: req.body.upscAttempts,
                 // upscTargetYear: req.body.upscTargetYear,

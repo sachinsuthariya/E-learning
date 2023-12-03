@@ -17,7 +17,17 @@ router.put("/:id", middleware.isAuthenticated, v.validate(BookModel), bookContro
 router.put("/status/:id", middleware.isAuthenticated, bookController.updateStatus);
 router.delete("/:id", middleware.isAuthenticated, bookController.delete);
 router.patch("/:id", middleware.isAuthenticated, bookController.restore);
-router.get("/:id", middleware.isAuthenticatedUser, bookController.getById);
+
+// book enrollment
+router.put("/:id/enroll-book", middleware.isAuthenticated, bookController.enrollBookUser);
+router.get("/enrolled-students/:id", middleware.isAuthenticated, bookController.enrolledStudentsCheckAdmin);
+router.get("/enrolled", middleware.isAuthenticatedStudent, bookController.enrolledBooks);
+router.get("/enrolled-books/:id", middleware.isAuthenticated, bookController.enrolledBooksCheckAdmin);
+
+//Book enquiry
+router.post("/enquiry-store", middleware.isAuthenticatedStudent, bookController.createEnquiry);
+
+router.get("/:id", bookController.getById);
 router.get("/", bookController.allBooks); // all Books
 
 // Export the express.Router() instance to be used by server.ts

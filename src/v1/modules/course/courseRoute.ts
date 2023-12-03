@@ -17,8 +17,27 @@ router.put("/:id", middleware.isAuthenticated, v.validate(CourseModel), courseCo
 router.put("/status/:id", middleware.isAuthenticated, courseController.updateStatus);
 router.delete("/:id", middleware.isAuthenticated, courseController.delete);
 router.patch("/:id", middleware.isAuthenticated, courseController.restore);
-router.get("/:id", middleware.isAuthenticatedUser, courseController.getById);
+// router.get('/youtube-live/auth/:id', courseController.createMeeting);
+router.post('/zoom-live/auth', courseController.createMeeting);
+router.post('/zoom-generate-signature', courseController.createSignature);
+// router.get('/startLiveStream', courseController.startLiveStream);
+router.get('/allCourses', courseController.appAllCourses); // app only route
+
+// course enrollment
+router.put("/:id/enroll-course", middleware.isAuthenticated, courseController.enrollCourseUser);
+router.get("/enrolled-students/:id", middleware.isAuthenticated, courseController.enrolledStudentsCheckAdmin);
+router.get("/enrolled", middleware.isAuthenticatedStudent, courseController.enrolledCourses);
+router.get("/enrolled-courses/:id", middleware.isAuthenticated, courseController.enrolledCoursesCheckAdmin);
+
+//course enquiry
+router.post("/enquiry-store", middleware.isAuthenticatedStudent, courseController.createEnquiry);
+
+//course Video
+router.post("/video-store", middleware.isAuthenticated, courseController.createVideo);
+
+router.get("/:id", courseController.getById);
 router.get("/", courseController.allCourses); // all Courses
+
 
 // Export the express.Router() instance to be used by server.ts
 export const CourseRoute: Router = router;

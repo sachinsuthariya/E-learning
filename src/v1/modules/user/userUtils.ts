@@ -37,7 +37,30 @@ export class UserUtils {
       // "upscAttempts",
       // "upscTargetYear",
       "status"
-    ]);
+    ]
+    );
+
+    return getAllUsers;
+  };
+   /**
+   * Get All Students
+   * @returns
+   */
+   public getAllStudents = async () => {
+    const getAllUsers = await My.findAll(Tables.USER, [
+      "id",
+      "firstName",
+      "lastName",
+      "email",
+      "mobile",
+      "role",
+      "dob",
+      "city",
+      // "upscAttempts",
+      // "upscTargetYear",
+      "status"
+    ],"role=?",
+    ["Student"]);
 
     return getAllUsers;
   };

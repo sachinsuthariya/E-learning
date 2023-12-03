@@ -130,4 +130,14 @@ export class Utils {
         }
       : Constants.DEFAULT_IMAGE;
   }
+  public static getDocumentPath(documentPath: string) {
+    return documentPath
+      ? {
+          url:
+            process.env.LOCAL_FILE_PATH +
+            Constants.DOCUMENT_PATH +
+            documentPath,
+        }
+      : Constants.DEFAULT_DOCUMENT;
+  }
 }

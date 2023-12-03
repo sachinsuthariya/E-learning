@@ -38,7 +38,32 @@ export class BookController {
       return res.status(response.error.code).json(response);
     }
   };
+  public createEnquiry = async (req: any, res: Response) => {
+    try {
+      req.body.id = Utils.generateUUID();
+      const currentTimestamp = new Date()
+                              .toISOString()
+                              .slice(0, 19)
+                              .replace("T", " ");
+      req.body.purchase_date  = currentTimestamp;
+      
+      const enquiry = await this.bookUtils.createEnquiry(req.body);
 
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enquiry
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
   public getById = async (req: any, res: Response) => {
     try {
       const id = req.params.id;
@@ -206,6 +231,92 @@ export class BookController {
       );
       return res.status(response.code).json(response);
     } catch (err) {
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public enrollBookUser = async (req: any, res: Response) => {
+    try {
+      // console.log(req);
+      // return;
+      const bookId = req.params.id;
+      const studentId = req.body.student_id;
+      // console.log("user Id :", req.user);
+      const enroll = await this.bookUtils.studentEnrollment(bookId, studentId);
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enroll
+      );
+      // console.log(response);
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  }
+  public enrolledStudentsCheckAdmin = async (req: any, res: Response) => {
+    // console.log(req.pa)
+    try {
+      const bookId = req.params.id;
+      // return loginUserId;
+      const enrolledStudents = await this.bookUtils.bookEnrolledStudents(bookId);
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enrolledStudents
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public enrolledBooks = async (req: any, res: Response) => {
+    try {
+      const loginUserId = req.user && req.user.id ? req.user.id : null;
+
+      const enrolledBooks = await this.bookUtils.userEnrolledBooks(loginUserId);
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enrolledBooks
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public enrolledBooksCheckAdmin = async (req: any, res: Response) => {
+    try {
+      const userId = req.params.id;
+      const enrolledBooks = await this.bookUtils.userEnrolledBooks(userId);
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enrolledBooks
+      );
+      // console.log(response);
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")

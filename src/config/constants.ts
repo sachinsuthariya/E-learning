@@ -46,11 +46,15 @@ export class Constants {
   };
 
   public static readonly DEFAULT_IMAGE = {
-    url: `https://console.nocat.tech/img/noImage.jpg`,
-    thumbnail: `https://console.nocat.tech/img/noImage.jpg`,
+    url: `https://console.spiderai.in/img/noImage.jpg`,
+    thumbnail: `https://console.spiderai.in/img/noImage.jpg`,
   };
 
   public static readonly IMAGE_PATH = "/images/";
   public static readonly IMAGE_THUMBNAIL_PATH = "/images/thumbnails/";
+
   public static readonly DOCUMENT_PATH = "/documents/";
+  public static readonly DEFAULT_DOCUMENT = "NO NEED TO UPDATE";
+
+
 }
