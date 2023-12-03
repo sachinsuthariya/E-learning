@@ -15,7 +15,6 @@ export class CourseUtils {
   public create = (courseDetails: Json) =>
     My.insert(Tables.COURSE, courseDetails);
 
-
   // Create Course Enquiries
   public createEnquiry = (enqiryDetails: Json) =>
   My.insert(Tables.COURSE_ENQUIRY, enqiryDetails);
@@ -52,8 +51,50 @@ export class CourseUtils {
       "id=?",
       [courseId]
     );
-    course.attachment = Utils.getImagePath(course.attachment);
+    if (course) {
+      const videos = await this.getVideosByCourseId(courseId);
+  
+      // Combine the course and videos data
+      course.attachment = Utils.getImagePath(course.attachment);
+      course.videos = videos; // Assuming you have a property in your course model to store videos
+      // console.log(course);
+    }
     return course;
+  };
+  private getVideosByCourseId = async (courseId: string) => {
+    // Implement the logic to fetch videos based on the courseId
+    const videos = await My.findAll(
+      Tables.COURSE_VIDEO,
+      [
+        "id",
+        "title",
+        "description",
+        "thumbnail",
+        "video",
+        "course_id",
+        "created_at"
+      ],
+      "course_id=?",
+      [courseId]
+    );
+    videos.map((thumb) => {
+      thumb.thumbnail = Utils.getImagePath(thumb.thumbnail);
+      return thumb;
+    });
+    videos.map((date) => {
+      const currentUploadedDate = new Date(
+        date.created_at
+      )
+      const formatedUploadedDate = new Date(
+        currentUploadedDate.getFullYear(),
+        currentUploadedDate.getMonth(),
+        currentUploadedDate.getDate()
+      )
+      date.created_at = formatedUploadedDate;
+      return date;
+    });
+  
+    return videos;
   };
 
   /**
