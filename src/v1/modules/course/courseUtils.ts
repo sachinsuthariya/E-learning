@@ -41,26 +41,29 @@ export class CourseUtils {
    * @returns
    */
   public getById = async (courseId: string) => {
+    const model = `${Tables.COURSE} AS course INNER JOIN ${Tables.CATEGORY} AS category ON course.category_id = category.id`;
+
     const course = await My.first(
-      Tables.COURSE,
+      model,
       [
-        "id",
-        "title",
-        "description",
-        "isIncludesLiveClass",
-        "category_id",
-        "isFree",
-        "materials",
-        "payment_url",
-        "price",
-        "material_price",
-        "attachment",
-        "status",
-        "created_at",
-        "updated_at",
-        "deleted_at",
+        "course.id",
+        "course.title",
+        "course.description",
+        "course.isIncludesLiveClass",
+        "course.category_id",
+        "category.title as category",
+        "course.isFree",
+        "course.materials",
+        "course.payment_url",
+        "course.price",
+        "course.material_price",
+        "course.attachment",
+        "course.status",
+        "course.created_at",
+        "course.updated_at",
+        "course.deleted_at",
       ],
-      "id=?",
+      "course.id=?",
       [courseId]
     );
     if (course) {
@@ -94,9 +97,9 @@ export class CourseUtils {
     );
     await Promise.all(
     videos.map(async(thumb) => {
-      thumb.thumbnail = Utils.getImagePath(thumb.thumbnail);
+      thumb.videoThumbnail = Utils.getImagePath(thumb.thumbnail);
       // console.log(thumb);
-      thumb.category = await this.getByIdVideoCategory(thumb.video_category_id);
+      thumb.videoCategory = await this.getByIdVideoCategory(thumb.video_category_id);
       return thumb;
     })
     );
@@ -139,7 +142,14 @@ export class CourseUtils {
       [categoryId]
       );
       console.log(categoryId)
-      return videoCategory;
+      if(!videoCategory){
+        const categoryData = '';
+      
+        return categoryData;
+      }
+      else{
+        return videoCategory;
+      }
     }
   private getMaterialsByCourseId = async (courseId: string) => {
 
@@ -160,8 +170,8 @@ export class CourseUtils {
     );
     await Promise.all(
     materials.map(async(thumb) => {
-      thumb.thumbnail = Utils.getImagePath(thumb.thumbnail);
-      thumb.category = await this.getByIdMaterialCategory(thumb.material_category_id);
+      thumb.materialThumbnail = Utils.getImagePath(thumb.thumbnail);
+      thumb.materialCategory = await this.getByIdMaterialCategory(thumb.material_category_id);
       return thumb;
     })
     );
@@ -196,13 +206,21 @@ export class CourseUtils {
 
     return getAllCategories;
   };
-  public getByIdMaterialCategory = async (categoryId: string) =>
-    await My.first(
+  public getByIdMaterialCategory = async (categoryId: string) => {
+    const materialCategory = await My.first(
       Tables.MATERIAL_CATEGORY,
       ["id", "title","created_at", "updated_at"],
       "id=?",
       [categoryId]
     );
+    if(!materialCategory){
+      const categoryData = '';
+      return categoryData;
+    }
+    else{
+      return materialCategory;
+    }
+  }
   /**
    * Get Course by ID for students
    * @param courseDetails

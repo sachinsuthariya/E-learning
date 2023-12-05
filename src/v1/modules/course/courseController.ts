@@ -94,12 +94,16 @@ export class CourseController {
   public createVideo = async (req: any, res: Response) => {
     try {
       req.body.id = Utils.generateUUID();
-      console.log(req.body);
+      
       const image = req.files.image;
       if (image) {
         req.body.thumbnail = Media.uploadImage(image, FileTypes.COURSE_VIDEOS);
       }
-      console.log(req.body);
+      const videoDetails = {
+        id: req.body.id,
+        title: req.body.title,
+        thumbnail: req.body.thumbnail,
+      };
       const video = await this.courseUtils.courseVideo(req.body);
 
       const response = ResponseBuilder.genSuccessResponse(
@@ -109,7 +113,7 @@ export class CourseController {
       );
       return res.status(response.code).json(response);
     } catch (err) {
-      console.log(err);
+      console.log( "course video ===>", err);
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")
