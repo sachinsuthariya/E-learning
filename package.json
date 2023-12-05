@@ -69,6 +69,7 @@
     "jm-ez-l10n": "^1.0.0",
     "jm-ez-mysql": "^2.3.0",
     "jsonwebtoken": "^8.5.1",
+    "jsrsasign": "^10.5.25",
     "method-override": "^3.0.0",
     "moment": "^2.23.0",
     "moment-timezone": "^0.5.31",
@@ -88,8 +89,7 @@
     "trim-request": "^1.0.6",
     "ts-node-dev": "^1.0.0-pre.32",
     "uuid": "^9.0.1",
-    "winston": "^3.1.0",
-    "jsrsasign": "^10.5.25"
+    "winston": "^3.1.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
@@ -103,7 +103,7 @@
     "rimraf": "^2.6.3",
     "ts-node": "^8.10.2",
     "tslint": "^5.12.1",
-    "typescript": "^3.4.1",
+    "typescript": "^5.3.2",
     "typescript-eslint-parser": "^21.0.2"
   }
 }
