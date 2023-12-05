@@ -117,6 +117,107 @@ export class CourseController {
       return res.status(response.error.code).json(response);
     }
   };
+  public createMaterials = async (req: any, res: Response) => {
+    try {
+      req.body.id = Utils.generateUUID();
+      console.log(req.body);
+      const image = req.files.image;
+      if (image) {
+        req.body.thumbnail = Media.uploadImage(image, FileTypes.COURSE_MATERIALS);
+      }
+      const material = req.files.file;
+      if (material) {
+        req.body.file = Media.uploadDocument(material, FileTypes.COURSE_MATERIALS);
+      }
+      console.log(req.body);
+      const materials = await this.courseUtils.courseMaterial(req.body);
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        materials
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public createVideoCategory = async (req: any, res: Response) => {
+    try {
+        req.body.id = Utils.generateUUID();
+        const category = await this.courseUtils.videoCategory(req.body);
+        
+        const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
+        return res.status(response.code).json(response);
+    } catch (err) {
+        const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+        return res.status(response.error.code).json(response);
+    }
+  }
+  public allVideoCategories = async (req: any, res: Response) => {
+    try {
+        const videoCategories = await this.courseUtils.allVideoCategories();
+        const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), videoCategories);
+        return res.status(response.code).json(response);
+    } catch (err) {
+        console.log(err);
+        const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+        return res.status(response.error.code).json(response);
+    }
+  }
+  public videoCategoryById = async (req: any, res: Response) => {
+    try {
+        const id = req.params.id;
+        const category = await this.courseUtils.getByIdVideoCategory(id);
+        
+        const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
+        return res.status(response.code).json(response);
+    } catch (err) {
+        const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+        return res.status(response.error.code).json(response);
+    }
+  }
+public createMaterialCategory = async (req: any, res: Response) => {
+  try {
+      req.body.id = Utils.generateUUID();
+      const category = await this.courseUtils.materialCategory(req.body);
+      
+      const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
+      return res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+      const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+      return res.status(response.error.code).json(response);
+  }
+}
+public allMaterialCategories = async (req: any, res: Response) => {
+  try {
+      const materialCategories = await this.courseUtils.allMaterialCategories();
+      const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), materialCategories);
+      return res.status(response.code).json(response);
+  } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+      return res.status(response.error.code).json(response);
+  }
+}
+public materialCategoryById = async (req: any, res: Response) => {
+  try {
+      const id = req.params.id;
+      const category = await this.courseUtils.getByIdMaterialCategory(id);
+      
+      const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
+      return res.status(response.code).json(response);
+  } catch (err) {
+      const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+      return res.status(response.error.code).json(response);
+  }
+}
   public getById = async (req: any, res: Response) => {
     try {
       const id = req.params.id;
@@ -145,6 +246,23 @@ export class CourseController {
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
         courses
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public allCourseEnquiries = async (req: any, res: Response) => {
+    try {
+      const enquiries = await this.courseUtils.getAllEnquiries();
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enquiries
       );
       return res.status(response.code).json(response);
     } catch (err) {

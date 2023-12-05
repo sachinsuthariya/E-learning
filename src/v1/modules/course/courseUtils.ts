@@ -21,7 +21,19 @@ export class CourseUtils {
   
   // Create Course Videos
   public courseVideo = (videoDetails: Json) =>
-  My.insert(Tables.COURSE_VIDEO, videoDetails);
+  My.insert(Tables.COURSE_VIDEO, videoDetails); 
+  
+  // Create Course Materials
+  public courseMaterial = (materialDetails: Json) =>
+  My.insert(Tables.COURSE_MATERIAL, materialDetails);
+
+  // Create Video Category
+  public videoCategory = (videoCategoryDetails: Json) =>
+  My.insert(Tables.VIDEO_CATEGORY, videoCategoryDetails);
+
+  // Create Material Category
+  public materialCategory = (materialCategoryDetails: Json) =>
+  My.insert(Tables.MATERIAL_CATEGORY, materialCategoryDetails);
 
   /**
    * Get Course by ID
@@ -53,10 +65,12 @@ export class CourseUtils {
     );
     if (course) {
       const videos = await this.getVideosByCourseId(courseId);
+      const materials = await this.getMaterialsByCourseId(courseId);
   
       // Combine the course and videos data
       course.attachment = Utils.getImagePath(course.attachment);
-      course.videos = videos; // Assuming you have a property in your course model to store videos
+      course.videos = videos;
+      course.materials = materials;
       // console.log(course);
     }
     return course;
@@ -68,6 +82,7 @@ export class CourseUtils {
       [
         "id",
         "title",
+        "video_category_id",
         "description",
         "thumbnail",
         "video",
@@ -77,10 +92,14 @@ export class CourseUtils {
       "course_id=?",
       [courseId]
     );
-    videos.map((thumb) => {
+    await Promise.all(
+    videos.map(async(thumb) => {
       thumb.thumbnail = Utils.getImagePath(thumb.thumbnail);
+      // console.log(thumb);
+      thumb.category = await this.getByIdVideoCategory(thumb.video_category_id);
       return thumb;
-    });
+    })
+    );
     videos.map((date) => {
       const currentUploadedDate = new Date(
         date.created_at
@@ -93,10 +112,97 @@ export class CourseUtils {
       date.created_at = formatedUploadedDate;
       return date;
     });
-  
     return videos;
   };
+  /**
+   * Get All Video Categories
+   * @param categoryDetails
+   * @returns
+   */
+  public allVideoCategories = async () => {
+    const getAllCategories = await My.findAll(Tables.VIDEO_CATEGORY, [
+      "id",
+      "title",
+      "created_at",
+      "updated_at",
+    ]
+    );
 
+    return getAllCategories;
+  };
+  public getByIdVideoCategory = async (categoryId: string) => {
+
+    const videoCategory = await My.first(
+      Tables.VIDEO_CATEGORY,
+      ["id", "title","created_at", "updated_at"],
+      "id=?",
+      [categoryId]
+      );
+      console.log(categoryId)
+      return videoCategory;
+    }
+  private getMaterialsByCourseId = async (courseId: string) => {
+
+    const materials = await My.findAll(
+      Tables.COURSE_MATERIAL,
+      [
+        "id",
+        "title",
+        "material_category_id",
+        "description",
+        "thumbnail",
+        "file",
+        "course_id",
+        "created_at"
+      ],
+      "course_id=?",
+      [courseId]
+    );
+    await Promise.all(
+    materials.map(async(thumb) => {
+      thumb.thumbnail = Utils.getImagePath(thumb.thumbnail);
+      thumb.category = await this.getByIdMaterialCategory(thumb.material_category_id);
+      return thumb;
+    })
+    );
+    materials.map((date) => {
+      const currentUploadedDate = new Date(
+        date.created_at
+      )
+      const formatedUploadedDate = new Date(
+        currentUploadedDate.getFullYear(),
+        currentUploadedDate.getMonth(),
+        currentUploadedDate.getDate()
+      )
+      date.created_at = formatedUploadedDate;
+      return date;
+    });
+  
+    return materials;
+  };
+  /**
+   * Get All Material Categories
+   * @param categoryDetails
+   * @returns
+   */
+  public allMaterialCategories = async () => {
+    const getAllCategories = await My.findAll(Tables.MATERIAL_CATEGORY, [
+      "id",
+      "title",
+      "created_at",
+      "updated_at",
+    ]
+    );
+
+    return getAllCategories;
+  };
+  public getByIdMaterialCategory = async (categoryId: string) =>
+    await My.first(
+      Tables.MATERIAL_CATEGORY,
+      ["id", "title","created_at", "updated_at"],
+      "id=?",
+      [categoryId]
+    );
   /**
    * Get Course by ID for students
    * @param courseDetails
@@ -166,6 +272,44 @@ export class CourseUtils {
 
     return courses;
   };
+
+    /**
+   * Get All Course Enquiries
+   * @param courseDetails
+   * @returns
+   */
+    public getAllEnquiries = async () => {
+      const enquiries = await My.findAll(
+        Tables.COURSE_ENQUIRY,
+        [
+          "id",
+          "course_id",
+          "user_id",
+          "purchase_date",
+          "name",
+          "email",
+          "dob",
+          "category",
+          "address",
+          "qualification",
+          "whatsapp_number",
+          "telegram_id",
+          "emergency_number",
+          "mobile_model",
+          "exam_appear",
+          "competitive_exam",
+          "materials",
+          "price",
+          "status",
+          "created_at",
+          "updated_at",
+        ],
+        "status=?",
+        ["active"]
+      );
+        // console.log(enquiries);
+      return enquiries;
+    };
   /**
    * Get All Courses
    * @param courseDetails

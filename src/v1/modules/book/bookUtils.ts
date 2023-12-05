@@ -102,7 +102,42 @@ export class BookUtils {
 
     return books;
   };
-
+ /**
+   * Get All Book Enquiries
+   * @param courseDetails
+   * @returns
+   */
+ public getAllEnquiries = async () => {
+  const enquiries = await My.findAll(
+    Tables.BOOK_ENQUIRY,
+    [
+      "id",
+      "book_id",
+      "user_id",
+      "purchase_date",
+      "name",
+      "email",
+      "dob",
+      "category",
+      "address",
+      "qualification",
+      "whatsapp_number",
+      "telegram_id",
+      "emergency_number",
+      "mobile_model",
+      "exam_appear",
+      "competitive_exam",
+      "price",
+      "status",
+      "created_at",
+      "updated_at",
+    ],
+    "status=?",
+    ["active"]
+  );
+    // console.log(enquiries);
+  return enquiries;
+};
   /**
    * Book Status changed to Deleted by ID
    * @param bookDetails

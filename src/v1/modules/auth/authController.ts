@@ -95,6 +95,7 @@ public signup = async (req: any, res: Response) => {
 
   // Admin login
   public login = async (req: any, res: Response) => {
+    console.log(req.body);
     try {
       const payload = {
         id: req.body._authentication.id,

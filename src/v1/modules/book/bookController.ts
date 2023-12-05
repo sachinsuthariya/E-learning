@@ -101,7 +101,23 @@ export class BookController {
       return res.status(response.error.code).json(response);
     }
   };
-
+  public allBookEnquiries = async (req: any, res: Response) => {
+    try {
+      const enquiries = await this.bookUtils.getAllEnquiries();
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        enquiries
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
   public delete = async (req: any, res: Response) => {
     try {
       const id = req.params.id;

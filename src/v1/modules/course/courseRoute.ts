@@ -30,10 +30,22 @@ router.get("/enrolled", middleware.isAuthenticatedStudent, courseController.enro
 router.get("/enrolled-courses/:id", middleware.isAuthenticated, courseController.enrolledCoursesCheckAdmin);
 
 //course enquiry
+router.get('/enquiries', middleware.isAuthenticated, courseController.allCourseEnquiries);
 router.post("/enquiry-store", middleware.isAuthenticatedStudent, courseController.createEnquiry);
 
 //course Video
 router.post("/video-store", middleware.isAuthenticated, courseController.createVideo);
+router.post("/video-category-store", middleware.isAuthenticated, courseController.createVideoCategory);
+router.get('/video-categories', middleware.isAuthenticated, courseController.allVideoCategories);
+router.get('/video-category/:id', middleware.isAuthenticatedAll, courseController.videoCategoryById);
+
+
+//course materials
+router.post("/material-store", middleware.isAuthenticated, courseController.createMaterials);
+router.post("/material-category-store", middleware.isAuthenticated, courseController.createMaterialCategory);
+router.get('/material-categories', middleware.isAuthenticated, courseController.allMaterialCategories);
+router.get('/material-category/:id', middleware.isAuthenticatedAll, courseController.materialCategoryById);
+
 
 router.get("/:id", courseController.getById);
 router.get("/", courseController.allCourses); // all Courses
