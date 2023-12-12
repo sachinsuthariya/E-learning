@@ -94,16 +94,13 @@ export class CourseController {
   public createVideo = async (req: any, res: Response) => {
     try {
       req.body.id = Utils.generateUUID();
-      
+      console.log(req.body);
+      // return;
       const image = req.files.image;
       if (image) {
         req.body.thumbnail = Media.uploadImage(image, FileTypes.COURSE_VIDEOS);
       }
-      const videoDetails = {
-        id: req.body.id,
-        title: req.body.title,
-        thumbnail: req.body.thumbnail,
-      };
+
       const video = await this.courseUtils.courseVideo(req.body);
 
       const response = ResponseBuilder.genSuccessResponse(
@@ -121,10 +118,84 @@ export class CourseController {
       return res.status(response.error.code).json(response);
     }
   };
+  public updateVideoLiveStatus = async (req: any, res: Response) => {
+    try {
+      // return req.body;
+      const videoId = req.params.id;
+
+      const updateVideo = await this.courseUtils.updateByIdCourseVideo(
+        videoId,
+        req.body
+      );
+
+      if (!updateVideo || !updateVideo.affectedRows) {
+        const response = ResponseBuilder.genErrorResponse(
+          Constants.NOT_FOUND_CODE,
+          req.t("VIDEO_NOT_FOUND")
+        );
+        return res.status(response.error.code).json(response);
+      }
+
+      const video = await this.courseUtils.getVideoById(videoId);
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        video
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public updateVideo = async (req: any, res: Response) => {
+    try {
+      // return req.body;
+      const videoId = req.params.id;
+      const image = req.files.image;
+      if (image) {
+        req.body.thumbnail = Media.uploadImage(image, FileTypes.COURSE_VIDEOS);
+        await this.courseUtils.deleteVideoImage(videoId);
+      }
+
+      const updateVideo = await this.courseUtils.updateByIdCourseVideo(
+        videoId,
+        req.body
+      );
+
+      if (!updateVideo || !updateVideo.affectedRows) {
+        const response = ResponseBuilder.genErrorResponse(
+          Constants.NOT_FOUND_CODE,
+          req.t("VIDEO_NOT_FOUND")
+        );
+        return res.status(response.error.code).json(response);
+      }
+
+      const video = await this.courseUtils.getVideoById(videoId);
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        video
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+
   public createMaterials = async (req: any, res: Response) => {
     try {
       req.body.id = Utils.generateUUID();
-      console.log(req.body);
+
       const image = req.files.image;
       if (image) {
         req.body.thumbnail = Media.uploadImage(image, FileTypes.COURSE_MATERIALS);
@@ -133,7 +204,7 @@ export class CourseController {
       if (material) {
         req.body.file = Media.uploadDocument(material, FileTypes.COURSE_MATERIALS);
       }
-      console.log(req.body);
+
       const materials = await this.courseUtils.courseMaterial(req.body);
 
       const response = ResponseBuilder.genSuccessResponse(
@@ -151,6 +222,52 @@ export class CourseController {
       return res.status(response.error.code).json(response);
     }
   };
+
+  public updateMaterial = async (req: any, res: Response) => {
+    try {
+      const materialId = req.params.id;
+      const image = req.files.image;
+
+      if (image) {
+        req.body.thumbnail = Media.uploadImage(image, FileTypes.COURSE_MATERIALS);
+        await this.courseUtils.deleteMaterialImage(materialId);
+      }
+      const materialFile = req.files.file;
+      if (materialFile) {
+        req.body.file = Media.uploadDocument(materialFile, FileTypes.COURSE_MATERIALS);
+        await this.courseUtils.deleteMaterialFile(materialId);
+        
+      }
+
+      const updateMaterial = await this.courseUtils.updateByIdCourseMaterial(
+        materialId,
+        req.body
+      );
+
+      if (!updateMaterial || !updateMaterial.affectedRows) {
+        const response = ResponseBuilder.genErrorResponse(
+          Constants.NOT_FOUND_CODE,
+          req.t("CURRENT_AFFAIR_NOT_FOUND")
+        );
+        return res.status(response.error.code).json(response);
+      }
+
+      const material = await this.courseUtils.getMaterialById(materialId);
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        material
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
   public createVideoCategory = async (req: any, res: Response) => {
     try {
         req.body.id = Utils.generateUUID();
@@ -159,6 +276,22 @@ export class CourseController {
         const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
         return res.status(response.code).json(response);
     } catch (err) {
+        const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+        return res.status(response.error.code).json(response);
+    }
+  }
+  public updateVideoCategory = async (req: any, res: Response) => {
+    try {
+        const categoryId  = req.params.id;
+        const category = await this.courseUtils.updateVideoCategory(
+          categoryId,
+          req.body
+        );
+        
+        const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
+        return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
         const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
         return res.status(response.error.code).json(response);
     }
@@ -186,10 +319,72 @@ export class CourseController {
         return res.status(response.error.code).json(response);
     }
   }
+  public getVideoById = async (req: any, res: Response) => {
+    try {
+      const video_id = req.params.id;
+      const video = await this.courseUtils.getVideoById(video_id);
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        video
+      );
+      // console.log(response);
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public getVideoCategoriesByCourseId = async (req: any, res: Response) => {
+    try {
+      const course_id = req.params.id;
+        const category = await this.courseUtils.getVideoCategoriesByCourse(course_id);
+        
+        const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
+        return res.status(response.code).json(response);
+    } catch (err) {
+        const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+        return res.status(response.error.code).json(response);
+    }
+  }
+  public getVideosByCategoryId = async (req: any, res: Response) => {
+    try {
+      const category_id = req.params.id;
+        const category = await this.courseUtils.getVideosByCategoryId(category_id);
+        
+        const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
+        return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+        const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+        return res.status(response.error.code).json(response);
+    }
+  }
 public createMaterialCategory = async (req: any, res: Response) => {
   try {
       req.body.id = Utils.generateUUID();
       const category = await this.courseUtils.materialCategory(req.body);
+      
+      const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
+      return res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+      const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+      return res.status(response.error.code).json(response);
+  }
+}
+public updateMaterialCategory = async (req: any, res: Response) => {
+  try {
+      const categoryId  = req.params.id;
+      const category = await this.courseUtils.updateMaterialCategory(
+        categoryId,
+        req.body
+      );
       
       const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
       return res.status(response.code).json(response);
@@ -210,6 +405,27 @@ public allMaterialCategories = async (req: any, res: Response) => {
       return res.status(response.error.code).json(response);
   }
 }
+public getMaterialById = async (req: any, res: Response) => {
+  try {
+    const material_id = req.params.id;
+    const material = await this.courseUtils.getMaterialById(material_id);
+
+    const response = ResponseBuilder.genSuccessResponse(
+      Constants.SUCCESS_CODE,
+      req.t("SUCCESS"),
+      material
+    );
+    console.log(response);
+    return res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+    const response = ResponseBuilder.genErrorResponse(
+      Constants.INTERNAL_SERVER_ERROR_CODE,
+      req.t("ERR_INTERNAL_SERVER")
+    );
+    return res.status(response.error.code).json(response);
+  }
+};
 public materialCategoryById = async (req: any, res: Response) => {
   try {
       const id = req.params.id;
@@ -222,10 +438,38 @@ public materialCategoryById = async (req: any, res: Response) => {
       return res.status(response.error.code).json(response);
   }
 }
+public getMaterialCategoriesByCourseId = async (req: any, res: Response) => {
+  try {
+    const course_id = req.params.id;
+      const category = await this.courseUtils.getMaterialCategoriesByCourse(course_id);
+      
+      const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
+      return res.status(response.code).json(response);
+  } catch (err) {
+      const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+      return res.status(response.error.code).json(response);
+  }
+}
+public getMaterialsByCategoryId = async (req: any, res: Response) => {
+  try {
+    const category_id = req.params.id;
+      const category = await this.courseUtils.getMaterialsByCategoryId(category_id);
+      
+      const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), category);
+      return res.status(response.code).json(response);
+  } catch (err) {
+    console.log(err);
+      const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+      return res.status(response.error.code).json(response);
+  }
+}
   public getById = async (req: any, res: Response) => {
     try {
       const id = req.params.id;
-      const course = await this.courseUtils.getById(id);
+      const loginUserId = req.user && req.user.id ? req.user.id : null;
+      console.log(id,loginUserId);
+      // return;
+      const course = await this.courseUtils.getById(id,loginUserId);
 
       const response = ResponseBuilder.genSuccessResponse(
         Constants.SUCCESS_CODE,
@@ -299,6 +543,58 @@ public materialCategoryById = async (req: any, res: Response) => {
     try {
       const id = req.params.id;
       const course = await this.courseUtils.destroy(id);
+
+      if (!course || !course.affectedRows) {
+        const response = ResponseBuilder.genSuccessResponse(
+          Constants.FAIL_CODE,
+          req.t("INAVALID_REQUEST")
+        );
+        return res.status(response.code).json(response);
+      }
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS_CURRENT_AFFAIR_DELETE")
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public deleteVideo = async (req: any, res: Response) => {
+    try {
+      const id = req.params.id;
+      const course = await this.courseUtils.destroyVideo(id);
+
+      if (!course || !course.affectedRows) {
+        const response = ResponseBuilder.genSuccessResponse(
+          Constants.FAIL_CODE,
+          req.t("INAVALID_REQUEST")
+        );
+        return res.status(response.code).json(response);
+      }
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS_CURRENT_AFFAIR_DELETE")
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public deleteMaterial = async (req: any, res: Response) => {
+    try {
+      const id = req.params.id;
+      const course = await this.courseUtils.destroyMaterial(id);
 
       if (!course || !course.affectedRows) {
         const response = ResponseBuilder.genSuccessResponse(
@@ -618,6 +914,29 @@ public materialCategoryById = async (req: any, res: Response) => {
         Constants.SUCCESS_CODE,
         req.t("SUCCESS"),
         enrolledCourses
+      );
+      // console.log(response);
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public userCourseDelete = async (req: any, res: Response) => {
+    try {
+      const courseId = req.params.courseId;
+      const userId = req.params.userId;
+      console.log('courseId ===>',courseId,'userId===>',userId);
+      // return;
+      const deleteUserCourse = await this.courseUtils.userEnrolledCourseDelete(courseId,userId);
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        deleteUserCourse
       );
       // console.log(response);
       return res.status(response.code).json(response);

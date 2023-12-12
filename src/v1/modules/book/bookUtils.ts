@@ -135,6 +135,13 @@ export class BookUtils {
     "status=?",
     ["active"]
   );
+  await Promise.all(
+    enquiries.map(async(enquiry) => {
+      const book = await this.getById(enquiry.book_id);
+      enquiry.bookName = book.title;
+      return enquiry;
+    })
+  );
     // console.log(enquiries);
   return enquiries;
 };

@@ -22,31 +22,48 @@ export class CourseUtils {
   // Create Course Videos
   public courseVideo = (videoDetails: Json) =>
   My.insert(Tables.COURSE_VIDEO, videoDetails); 
+
+  // Update course video
+  public updateByIdCourseVideo = async (videoId: string, videoDetails: Json) =>
+  await My.update(Tables.COURSE_VIDEO, videoDetails, "id=?", [videoId]);
   
   // Create Course Materials
   public courseMaterial = (materialDetails: Json) =>
   My.insert(Tables.COURSE_MATERIAL, materialDetails);
 
+  // Update course material
+  public updateByIdCourseMaterial = async (materialId: string, materialDetails: Json) =>
+    await My.update(Tables.COURSE_MATERIAL, materialDetails, "id=?", [materialId]);
+
   // Create Video Category
   public videoCategory = (videoCategoryDetails: Json) =>
   My.insert(Tables.VIDEO_CATEGORY, videoCategoryDetails);
 
+  // Update course material category
+  public updateVideoCategory = async (categoryId: string, categoryDetails: Json) =>
+    await My.update(Tables.VIDEO_CATEGORY, categoryDetails, "id=?", [categoryId]);
+
   // Create Material Category
   public materialCategory = (materialCategoryDetails: Json) =>
   My.insert(Tables.MATERIAL_CATEGORY, materialCategoryDetails);
+
+  // Update course material category
+  public updateMaterialCategory = async (categoryId: string, categoryDetails: Json) =>
+  await My.update(Tables.MATERIAL_CATEGORY, categoryDetails, "id=?", [categoryId]);
 
   /**
    * Get Course by ID
    * @param courseDetails
    * @returns
    */
-  public getById = async (courseId: string) => {
+  public getById = async (courseId: string, loginUserId: string) => {
     const model = `${Tables.COURSE} AS course INNER JOIN ${Tables.CATEGORY} AS category ON course.category_id = category.id`;
 
     const course = await My.first(
       model,
       [
         "course.id",
+        "course.user_id",
         "course.title",
         "course.description",
         "course.isIncludesLiveClass",
@@ -67,19 +84,110 @@ export class CourseUtils {
       [courseId]
     );
     if (course) {
-      const videos = await this.getVideosByCourseId(courseId);
-      const materials = await this.getMaterialsByCourseId(courseId);
-  
+      const video_categories = await this.getVideoCategoriesByCourseForApp(courseId);
+      const material_categories = await this.getMaterialCategoriesByCourseForApp(courseId);
+      if(loginUserId !== null)
+      {
+        console.log(loginUserId);
+        course.user_id && course.user_id !== null ? (!course.user_id.includes(loginUserId) ? course.isPurchased = false : course.isPurchased = true) : course.isPurchased = false;
+      } else {
+        course.isPurchased = false;
+      }
       // Combine the course and videos data
       course.attachment = Utils.getImagePath(course.attachment);
-      course.videos = videos;
-      course.materials = materials;
+      course.video_categories = video_categories;
+      course.material_categories = material_categories;
       // console.log(course);
     }
+    delete course.user_id;
     return course;
   };
-  private getVideosByCourseId = async (courseId: string) => {
-    // Implement the logic to fetch videos based on the courseId
+private getVideoCategoriesByCourse = async (courseId: string) => {
+  const categories = await My.findAll(
+    Tables.VIDEO_CATEGORY,
+    [
+      "id",
+      "course_id",
+      "title"
+    ],
+    "course_id=?",
+    [courseId]
+  );
+  await Promise.all(
+  categories.map(async(category) => {
+     category.videos = await this.getVideosByCategoryId(category.id);
+    //  console.log(category);
+    return category;
+  })
+  );
+  console.log(categories);
+  return categories;
+  };
+  private getVideoCategoriesByCourseForApp = async (courseId: string) => {
+    const categories = await My.findAll(
+      Tables.VIDEO_CATEGORY,
+      [
+        "id",
+        "course_id",
+        "title"
+      ],
+      "course_id=?",
+      [courseId]
+    );
+     // Filter out categories that don't have any videos
+    const categoriesWithVideos = await Promise.all(
+      categories.map(async category => {
+        const {videos, hasLive} = await this.getVideosByCategoryId(category.id);
+        if (videos.length > 0) {
+          category.videos = videos;
+          category.hasLive = hasLive; 
+          return category;
+        }
+        return null; // Return null for categories without videos
+      })
+    );
+
+    // Remove null entries (categories without videos)
+    const filteredCategories = categoriesWithVideos.filter(category => category !== null);
+
+    return filteredCategories;
+    };
+  private getVideoById = async (videoId: string) => {
+    const video = await My.first(
+      Tables.COURSE_VIDEO,
+      [
+        "id",
+        "title",
+        "video_category_id",
+        "description",
+        "isFree",
+        "isLive",
+        "thumbnail",
+        "video",
+        "course_id",
+        "created_at"
+      ],
+      "id=?",
+      [videoId]
+    );
+
+    video.videoThumbnail = Utils.getImagePath(video.thumbnail);
+
+    
+      const currentUploadedDate = new Date(
+        video.created_at
+      )
+      const formatedUploadedDate = new Date(
+        currentUploadedDate.getFullYear(),
+        currentUploadedDate.getMonth(),
+        currentUploadedDate.getDate()
+      )
+      video.created_at = formatedUploadedDate;
+
+    return video;
+  };
+  private getVideosByCategoryId = async (categoryId: string) => {
+    // Implement the logic to fetch videos based on the categoryId
     const videos = await My.findAll(
       Tables.COURSE_VIDEO,
       [
@@ -87,19 +195,19 @@ export class CourseUtils {
         "title",
         "video_category_id",
         "description",
+        "isFree",
+        "isLive",
         "thumbnail",
         "video",
         "course_id",
         "created_at"
       ],
-      "course_id=?",
-      [courseId]
+      "video_category_id=?",
+      [categoryId]
     );
     await Promise.all(
     videos.map(async(thumb) => {
       thumb.videoThumbnail = Utils.getImagePath(thumb.thumbnail);
-      // console.log(thumb);
-      thumb.videoCategory = await this.getByIdVideoCategory(thumb.video_category_id);
       return thumb;
     })
     );
@@ -115,8 +223,16 @@ export class CourseUtils {
       date.created_at = formatedUploadedDate;
       return date;
     });
-    return videos;
+    // Check if any video in the category has isLive equal to 1
+    const hasLive = videos.some(video => video.isLive === 1);
+
+    // Return an object with both videos array and hasLive property
+    return {
+        videos,
+        hasLive,
+    };
   };
+  
   /**
    * Get All Video Categories
    * @param categoryDetails
@@ -125,6 +241,7 @@ export class CourseUtils {
   public allVideoCategories = async () => {
     const getAllCategories = await My.findAll(Tables.VIDEO_CATEGORY, [
       "id",
+      "course_id",
       "title",
       "created_at",
       "updated_at",
@@ -151,45 +268,126 @@ export class CourseUtils {
         return videoCategory;
       }
     }
-  private getMaterialsByCourseId = async (courseId: string) => {
+    private getMaterialCategoriesByCourse = async (courseId: string) => {
+      const categories = await My.findAll(
+        Tables.MATERIAL_CATEGORY,
+        [
+          "id",
+          "course_id",
+          "title"
+        ],
+        "course_id=?",
+        [courseId]
+      );
+      await Promise.all(
+        categories.map(async(category) => {
+          category.materials = await this.getMaterialsByCategoryId(category.id);
+          return category;
+        })
+      );
+      return categories;
+    };
+    private getMaterialCategoriesByCourseForApp = async (courseId: string) => {
+      const categories = await My.findAll(
+        Tables.MATERIAL_CATEGORY,
+        [
+          "id",
+          "course_id",
+          "title"
+        ],
+        "course_id=?",
+        [courseId]
+      );
+      // Filter out categories that don't have any materials
+    const categoriesWithMaterials = await Promise.all(
+      categories.map(async category => {
+        const materials = await this.getMaterialsByCategoryId(category.id);
+        if (materials.length > 0) {
+          category.materials = materials;
+          return category;
+        }
+        return null; // Return null for categories without materials
+      })
+    );
 
-    const materials = await My.findAll(
-      Tables.COURSE_MATERIAL,
-      [
-        "id",
-        "title",
-        "material_category_id",
-        "description",
-        "thumbnail",
-        "file",
-        "course_id",
-        "created_at"
-      ],
-      "course_id=?",
-      [courseId]
-    );
-    await Promise.all(
-    materials.map(async(thumb) => {
-      thumb.materialThumbnail = Utils.getImagePath(thumb.thumbnail);
-      thumb.materialCategory = await this.getByIdMaterialCategory(thumb.material_category_id);
-      return thumb;
-    })
-    );
-    materials.map((date) => {
-      const currentUploadedDate = new Date(
-        date.created_at
-      )
-      const formatedUploadedDate = new Date(
-        currentUploadedDate.getFullYear(),
-        currentUploadedDate.getMonth(),
-        currentUploadedDate.getDate()
-      )
-      date.created_at = formatedUploadedDate;
-      return date;
-    });
-  
-    return materials;
-  };
+    // Remove null entries (categories without materials)
+    const filteredCategories = categoriesWithMaterials.filter(category => category !== null);
+
+    return filteredCategories;
+    };
+      private getMaterialsByCategoryId = async (categoryId: string) => {
+        // Implement the logic to fetch materials based on the categoryId
+        const materials = await My.findAll(
+          Tables.COURSE_MATERIAL,
+          [
+            "id",
+            "title",
+            "material_category_id",
+            "description",
+            "isFree",
+            "thumbnail",
+            "file",
+            "course_id",
+            "created_at"
+          ],
+          "material_category_id=?",
+          [categoryId]
+        );
+        await Promise.all(
+          materials.map(async(thumb) => {
+            thumb.materialThumbnail = Utils.getImagePath(thumb.thumbnail);
+            thumb.materialFile = Utils.getDocumentPath(thumb.file);
+            // thumb.materialCategory = await this.getByIdMaterialCategory(thumb.material_category_id);
+            return thumb;
+          })
+        );
+        materials.map((date) => {
+          const currentUploadedDate = new Date(
+            date.created_at
+          )
+          const formatedUploadedDate = new Date(
+            currentUploadedDate.getFullYear(),
+            currentUploadedDate.getMonth(),
+            currentUploadedDate.getDate()
+          )
+          date.created_at = formatedUploadedDate;
+          return date;
+        });
+        return materials;
+      };
+      private getMaterialById = async (materialId: string) => {
+        // Implement the logic to fetch materials based on the categoryId
+        const material = await My.first(
+          Tables.COURSE_MATERIAL,
+          [
+            "id",
+            "title",
+            "material_category_id",
+            "description",
+            "isFree",
+            "thumbnail",
+            "file",
+            "course_id",
+            "created_at"
+          ],
+          "id=?",
+          [materialId]
+        );
+            material.materialThumbnail = Utils.getImagePath(material.thumbnail);
+            material.materialCategory = await this.getByIdMaterialCategory(material.material_category_id);
+
+          const currentUploadedDate = new Date(
+            material.created_at
+          )
+          const formatedUploadedDate = new Date(
+            currentUploadedDate.getFullYear(),
+            currentUploadedDate.getMonth(),
+            currentUploadedDate.getDate()
+          )
+          material.created_at = formatedUploadedDate;
+
+        return material;
+      };
   /**
    * Get All Material Categories
    * @param categoryDetails
@@ -198,6 +396,7 @@ export class CourseUtils {
   public allMaterialCategories = async () => {
     const getAllCategories = await My.findAll(Tables.MATERIAL_CATEGORY, [
       "id",
+      "course_id",
       "title",
       "created_at",
       "updated_at",
@@ -325,6 +524,13 @@ export class CourseUtils {
         "status=?",
         ["active"]
       );
+      await Promise.all(
+        enquiries.map(async(enquiry) => {
+          const course = await this.getById(enquiry.course_id);
+          enquiry.courseName = course.title;
+          return enquiry;
+        })
+      );
         // console.log(enquiries);
       return enquiries;
     };
@@ -385,6 +591,27 @@ export class CourseUtils {
     this.deleteImage(courseId);
     return course;
   };
+  public destroyVideo = async (videoId: string) => {
+    const video = await My.delete(
+      Tables.COURSE_VIDEO,
+      "id=?",
+      [videoId]
+    );
+
+    this.deleteVideoImage(videoId);
+    return video;
+  };
+  public destroyMaterial = async (materialId: string) => {
+    const material = await My.delete(
+      Tables.COURSE_MATERIAL,
+      "id=?",
+      [materialId]
+    );
+
+    this.deleteMaterialImage(materialId);
+    this.deleteMaterialFile(materialId);
+    return material;
+  };
 
   /**
    * Course Status changed to Draft and remove data of deleted_at column by ID
@@ -420,6 +647,42 @@ export class CourseUtils {
     }
     return;
   };
+  public deleteVideoImage = async (videoId: string) => {
+    const video = await My.first(
+      Tables.COURSE_VIDEO,
+      ["id", "thumbnail"],
+      "id = ?",
+      [videoId]
+    );
+    if (video.thumbnail) {
+      Media.deleteImage(video.thumbnail);
+    }
+    return;
+  };
+  public deleteMaterialImage = async (materialId: string) => {
+    const material = await My.first(
+      Tables.COURSE_MATERIAL,
+      ["id", "thumbnail"],
+      "id = ?",
+      [materialId]
+    );
+    if (material.thumbnail) {
+      Media.deleteImage(material.thumbnail);
+    }
+    return;
+  };
+  public deleteMaterialFile = async (materialId: string) => {
+    const material = await My.first(
+      Tables.COURSE_MATERIAL,
+      ["id", "file"],
+      "id = ?",
+      [materialId]
+    );
+    if (material.file) {
+      Media.deleteDocument(material.file);
+    }
+    return;
+  };
   public studentEnrollment = async (courseId: string, studentId: string) => {
     const course = await this.getByIdStudent(courseId);
     // console.log(course);
@@ -434,7 +697,7 @@ export class CourseUtils {
     } else {
       // Parse the existing user_ids as an array
       const existingUserIds = JSON.parse(course.user_id);
-      // console.log(existingUserIds);
+
       // Check if the current user's ID is not already in the array
       if (!existingUserIds.includes(studentId)) {
         existingUserIds.push(studentId);
@@ -506,6 +769,27 @@ export class CourseUtils {
     });
     return userCourses;
   };
+  public userEnrolledCourseDelete = async (courseId: string, userId: string) => {
+    const course = await My.first(Tables.COURSE, [
+      "id",
+      "user_id"
+    ],
+    "id=?",
+    [courseId]
+    );
+     // Parse the user_id JSON array
+    const user_idArray = JSON.parse(course.user_id);
+
+    // Remove userId from the user_id array
+    const updatedUserIds = user_idArray.filter(id => id !== userId);
+
+    // Convert the updatedUserIds array back to JSON
+    const updatedUserIdsJson = JSON.stringify(updatedUserIds);
+
+    const updateResult = await My.update(Tables.COURSE, { user_id: updatedUserIdsJson },"id=?",[courseId]);
+
+    return updateResult;
+  }
   public createZoomMeeting = async (accessToken: string, courseId: string): Promise<any> => {
     const createMeetingEndpoint = `${this.zoomApiBaseUrl}/users/me/meetings`;
     
