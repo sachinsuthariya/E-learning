@@ -58,7 +58,7 @@ export class CourseUtils {
    */
   public getById = async (courseId: string, loginUserId: string) => {
     const model = `${Tables.COURSE} AS course INNER JOIN ${Tables.CATEGORY} AS category ON course.category_id = category.id`;
-
+    console.log(courseId);
     const course = await My.first(
       model,
       [
@@ -88,7 +88,7 @@ export class CourseUtils {
       const material_categories = await this.getMaterialCategoriesByCourseForApp(courseId);
       if(loginUserId !== null)
       {
-        console.log(loginUserId);
+        // console.log(loginUserId);
         course.user_id && course.user_id !== null ? (!course.user_id.includes(loginUserId) ? course.isPurchased = false : course.isPurchased = true) : course.isPurchased = false;
       } else {
         course.isPurchased = false;
@@ -97,8 +97,8 @@ export class CourseUtils {
       course.attachment = Utils.getImagePath(course.attachment);
       course.video_categories = video_categories;
       course.material_categories = material_categories;
-      // console.log(course);
     }
+    console.log(course);
     delete course.user_id;
     return course;
   };

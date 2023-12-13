@@ -60,11 +60,12 @@ export class Media {
   public static uploadDocument(file: UploadedFile, type: FileTypes): string {
     const fileExtension = file.name.split(".").pop();
     const fileName = moment().unix().toString() + "." + fileExtension;
-
+    // console.log(file.name);
+    // return;
     const filePath = path.join(
       process.cwd(),
       `uploads/documents/${type}`,
-      fileName
+      file.name
     );
 
     file.mv(filePath, (err) => {
@@ -72,8 +73,7 @@ export class Media {
         throw err;
       }
     });
-
-    return path.join(`${type}/${fileName}`);
+    return path.join(`${type}/${file.name}`);
   }
 
   public static deleteImage = (attachmentPath: string) => {
