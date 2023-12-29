@@ -21,6 +21,7 @@ export enum UserRole {
     COURSE_VIDEOS = "course-videos",
     COURSE_MATERIALS = "course-materials",
     EXAMS = "exams",
+    TEST_SERIES = "test-series",
     APP_ADVERTISE = "advertisements",
     APP_UPDATE = "app_updates"
   }

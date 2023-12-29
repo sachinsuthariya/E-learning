@@ -13,6 +13,9 @@ export class Tables {
   public static readonly APP_ADVERTISE = "advertisements";
   public static readonly APP_UPDATE = "app_updates";
   public static readonly EXAM = "exams";
+  public static readonly EXAM_CATEGORY = "exam_categories";
+  public static readonly TEST_SERIES = "test_series";
+  public static readonly TEST_SERIES_ENQUIRY = "test_series_enquiries";
   public static readonly QUESTION = "questions";
   public static readonly MCQ_OPTION = "mcq_options";
   public static readonly EXAM_RESULT = "exam_results";

@@ -22,6 +22,7 @@ export class CurrentAffairsUtils {
       [
         "id",
         "title",
+        "lang",
         "content",
         "status",
         "attachment",
@@ -49,6 +50,7 @@ export class CurrentAffairsUtils {
       [
         "id",
         "title",
+        "lang",
         "content",
         "status",
         "attachment",
@@ -65,6 +67,37 @@ export class CurrentAffairsUtils {
       return currentAffair;
     });
 
+    return currentAffairs;
+  };
+
+  /**
+   * Get All Current Affairs
+   * @param currentAffairsDetails
+   * @returns
+   */
+  public getAllCurrentAffairsByLanguage = async (lang: String) => {
+    const currentAffairs = await My.findAll(
+      Tables.CURRENT_AFFAIRS,
+      [
+        "id",
+        "title",
+        "lang",
+        "content",
+        "status",
+        "attachment",
+        "created_at",
+        "updated_at",
+        "deleted_at",
+      ],
+      "status=? AND lang=?",
+      ["published",lang]
+    );
+
+    currentAffairs.map((currentAffair) => {
+      currentAffair.attachment = Utils.getImagePath(currentAffair.attachment);
+      return currentAffair;
+    });
+    delete currentAffairs.lang;
     return currentAffairs;
   };
 

@@ -15,6 +15,7 @@ export class ExamController {
   public create = async (req: any, res: Response) => {
     try {
       req.body.id = Utils.generateUUID();
+      console.log(req.body)
       const image = req.files.image;
       if (image) {
         req.body.attachment = Media.uploadImage(image, FileTypes.EXAMS)
@@ -29,6 +30,7 @@ export class ExamController {
       );
       return res.status(response.code).json(response);
     } catch (err) {
+      console.log(err);
       const response = ResponseBuilder.genErrorResponse(
         Constants.INTERNAL_SERVER_ERROR_CODE,
         req.t("ERR_INTERNAL_SERVER")

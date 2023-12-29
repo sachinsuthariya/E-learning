@@ -58,7 +58,6 @@ export class CourseUtils {
    */
   public getById = async (courseId: string, loginUserId: string) => {
     const model = `${Tables.COURSE} AS course INNER JOIN ${Tables.CATEGORY} AS category ON course.category_id = category.id`;
-    console.log(courseId);
     const course = await My.first(
       model,
       [

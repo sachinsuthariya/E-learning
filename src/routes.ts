@@ -12,6 +12,7 @@ import { QuestionRoute } from "./v1/modules/question/questionRoute";
 import { BookRoute } from "./v1/modules/book/bookRoute"
 import { AppAdvertiseRoute } from "./v1/modules/app-advertise/appAdvertiseRoute";
 import { AppUpdateRoute } from "./v1/modules/app-update/appUpdateRoute";
+import { TestSeriesRoute } from "./v1/modules/test-series/testSeriesRoute";
 
 export class Routes {
   protected basePath: string;
@@ -48,6 +49,7 @@ export class Routes {
     router.use("/course-categories", CourseCategoriesRoute);
     router.use("/course", CourseRoute);
     router.use("/exam", ExamRoute);
+    router.use("/test-series", TestSeriesRoute);
     router.use("/question", QuestionRoute)
     router.use("/book", BookRoute)
 

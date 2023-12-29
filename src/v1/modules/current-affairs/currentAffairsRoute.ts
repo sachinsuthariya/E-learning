@@ -19,6 +19,7 @@ router.delete("/:id", middleware.isAuthenticated, currentAffairsController.delet
 router.patch("/:id", middleware.isAuthenticated, currentAffairsController.restore);
 router.get("/:id", currentAffairsController.getById);
 router.get("/", currentAffairsController.allCurrentAffairs); // all current affairs
+router.get("/lang/:lang", currentAffairsController.allCurrentAffairsByLanguage); // all current affairs by language
 router.post("/upload-files", middleware.isAuthenticatedUser, currentAffairsController.uploadFiles)
 
 // Export the express.Router() instance to be used by server.ts
