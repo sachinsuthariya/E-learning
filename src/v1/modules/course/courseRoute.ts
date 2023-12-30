@@ -42,6 +42,10 @@ router.put("/video-update/:id", middleware.isAuthenticated, courseController.upd
 router.put("/video-live-status-update/:id", middleware.isAuthenticated, courseController.updateVideoLiveStatus);
 router.delete("/video-delete/:id", middleware.isAuthenticated, courseController.deleteVideo);
 
+//video chats
+router.post("/chat-store", middleware.isAuthenticated, courseController.storeChat);
+router.get("/chats", middleware.isAuthenticated, courseController.videoChats);
+
 router.get("/video-categories/:id", middleware.isAuthenticated, courseController.getVideoCategoriesByCourseId);
 router.put("/video-category-update/:id", middleware.isAuthenticated, courseController.updateVideoCategory);
 router.post("/video-category-store", middleware.isAuthenticated, courseController.createVideoCategory);

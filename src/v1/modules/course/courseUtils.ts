@@ -15,6 +15,30 @@ export class CourseUtils {
   public create = (courseDetails: Json) =>
     My.insert(Tables.COURSE, courseDetails);
 
+  // Store Video Chat
+  public storeChat = (chatDetails: Json) =>
+  My.insert(Tables.VIDEO_CHAT, chatDetails);
+
+    /**
+   * Get All Video Categories
+   * @param categoryDetails
+   * @returns
+   */
+    public videoAllchats = async () => {
+      const getChats = await My.findAll(Tables.VIDEO_CHAT, [
+          "id",
+          "user_id",
+          "course_video_id",
+          "msg",
+          "reply",
+          "created_at",
+          "updated_at",
+        ]
+      );
+  
+      return getChats;
+    };
+
   // Create Course Enquiries
   public createEnquiry = (enqiryDetails: Json) =>
   My.insert(Tables.COURSE_ENQUIRY, enqiryDetails);

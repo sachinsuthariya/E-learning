@@ -5,6 +5,7 @@ export class Tables {
   public static readonly COURSE = "courses";
   public static readonly COURSE_ENQUIRY = "course_enquiries";
   public static readonly COURSE_VIDEO = "course_videos";
+  public static readonly VIDEO_CHAT = "video_chats";
   public static readonly COURSE_MATERIAL = "course_materials";
   public static readonly MATERIAL_CATEGORY = "material_categories";
   public static readonly VIDEO_CATEGORY = "video_categories";

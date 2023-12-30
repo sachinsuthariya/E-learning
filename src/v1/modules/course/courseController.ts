@@ -929,8 +929,7 @@ public getMaterialsByCategoryId = async (req: any, res: Response) => {
   public userCourseDelete = async (req: any, res: Response) => {
     try {
       const courseId = req.params.courseId;
-      const userId = req.params.userId;
-      console.log('courseId ===>',courseId,'userId===>',userId);
+      const userId = req.params.userId
       // return;
       const deleteUserCourse = await this.courseUtils.userEnrolledCourseDelete(courseId,userId);
       const response = ResponseBuilder.genSuccessResponse(
@@ -995,4 +994,65 @@ public getMaterialsByCategoryId = async (req: any, res: Response) => {
       return res.status(response.error.code).json(response);
     }
   };
+  public create = async (req: any, res: Response) => {
+    try {
+      req.body.id = Utils.generateUUID();
+      console.log(req.body);
+      const image = req.files.image;
+      if (image) {
+        req.body.attachment = Media.uploadImage(image, FileTypes.COURSES);
+      }
+      console.log(req.body);
+      await this.courseUtils.create(req.body);
+      const course = await this.courseUtils.getById(req.body.id);
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        course
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };public storeChat = async (req: any, res: Response) => {
+    try {
+      req.body.id = Utils.generateUUID();
+      req.body.user_id = req.user && req.user.id ? req.user.id : null;
+      delete req.body.authentication;
+      console.log(req.body);
+
+      const chat = await this.courseUtils.storeChat(req.body);
+
+      const response = ResponseBuilder.genSuccessResponse(
+        Constants.SUCCESS_CODE,
+        req.t("SUCCESS"),
+        chat
+      );
+      return res.status(response.code).json(response);
+    } catch (err) {
+      console.log(err);
+      const response = ResponseBuilder.genErrorResponse(
+        Constants.INTERNAL_SERVER_ERROR_CODE,
+        req.t("ERR_INTERNAL_SERVER")
+      );
+      return res.status(response.error.code).json(response);
+    }
+  };
+  public videoChats = async (req: any, res: Response) => {
+    try {
+        const videoChats = await this.courseUtils.videoAllchats();
+        const response = ResponseBuilder.genSuccessResponse(Constants.SUCCESS_CODE, req.t("SUCCESS"), videoChats);
+        return res.status(response.code).json(response);
+    } catch (err) {
+        console.log(err);
+        const response = ResponseBuilder.genErrorResponse(Constants.INTERNAL_SERVER_ERROR_CODE, req.t("ERR_INTERNAL_SERVER"));
+        return res.status(response.error.code).json(response);
+    }
+  }
 }
